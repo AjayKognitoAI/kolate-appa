@@ -25,12 +25,6 @@ from .tenant import (
     UserBookmark,
 )
 
-# MongoDB models (imported but not part of SQLAlchemy)
-# These are Beanie documents for MongoDB
-from .mongo import (
-    PatientRecord, PatientRecordCreate,
-    ExecutionRecord, ExecutionRecordCreate,
-)
 from .user_auth import UserAuth, AuthType
 from .user_session import UserSession
 from .user_media import UserMedia, UserMediaType
@@ -95,7 +89,4 @@ __all__ = [
     "Notification", "NotificationStatus", "NotificationType",
     "TrialShare",
     "UserBookmark",
-    # MongoDB models
-    "PatientRecord", "PatientRecordCreate",
-    "ExecutionRecord", "ExecutionRecordCreate",
 ]

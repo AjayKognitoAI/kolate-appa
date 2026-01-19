@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     ALLOWED_METHODS: List[str] = ["GET", "POST", "PUT", "DELETE"]
     ALLOWED_HEADERS: List[str] = ["*"]
 
+    # Rate Limiting Configuration (API Gateway)
+    RATE_LIMIT_REQUESTS: int = 100  # Max requests per window
+    RATE_LIMIT_WINDOW: int = 60  # Window in seconds
+
     # Logging Configuration
     LOG_LEVEL: str = "INFO"
     ENABLE_FILE_LOGGING: bool = True

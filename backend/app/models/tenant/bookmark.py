@@ -67,7 +67,7 @@ class UserBookmark(Base):
         nullable=False
     )
     trial_slug = Column(String(100), nullable=False)
-    execution_id = Column(String(128), nullable=False)  # MongoDB ObjectId as string
+    execution_id = Column(String(128), nullable=False)  # UUID as string from execution_records
     bookmarked_at = Column(DateTime, default=func.now(), nullable=False)
 
     # Relationships

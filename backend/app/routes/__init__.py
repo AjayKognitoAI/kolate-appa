@@ -35,7 +35,7 @@ from .projects.projects import router as projects_router
 from .projects.project_users import router as project_users_router
 from .projects.project_roles import router as project_roles_router
 
-# Patient records routes (MongoDB)
+# Patient records routes (PostgreSQL with JSONB)
 from .patient_records.records import router as patient_records_router
 from .patient_records.executions import router as executions_router
 
@@ -141,7 +141,7 @@ api_router.include_router(
     tags=["project-roles"]
 )
 
-# Patient Record Routes (MongoDB)
+# Patient Record Routes (PostgreSQL with JSONB)
 api_router.include_router(
     patient_records_router,
     prefix="/patient-records",

@@ -57,7 +57,7 @@ class TrialShare(Base):
         nullable=False
     )
     trial_slug = Column(String(100), nullable=False)
-    execution_id = Column(String(128), nullable=True)  # MongoDB ObjectId as string
+    execution_id = Column(String(128), nullable=True)  # UUID as string from execution_records
     sender_id = Column(String(128), nullable=False)  # Auth0 user ID
     recipients = Column(ARRAY(String), nullable=False, default=list)  # Array of Auth0 IDs
     created_at = Column(DateTime, default=func.now(), nullable=False)

@@ -14,6 +14,8 @@ from app.core.logging import logger, info
 from app import models
 # Import exception handlers
 from app.exceptions.handlers import EXCEPTION_HANDLERS
+# Import API Gateway middleware (replaces Spring Cloud Gateway)
+from app.middleware import RateLimiterMiddleware, APIGatewayMiddleware, RequestIDMiddleware
 
 
 @asynccontextmanager
@@ -71,22 +73,45 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FastAPI Backend Template",
-    description="A production-ready FastAPI backend template with RBAC, async database, and caching",
+    title="Kolate API",
+    description="Kolate multi-tenant SaaS platform API with Auth0 RBAC, schema-based multi-tenancy, and enterprise features",
     version="1.0.0",
     lifespan=lifespan
 )
 
-# Add logging middleware (should be first for comprehensive request tracking)
+# ============================================================
+# Middleware Configuration (Order matters - first added = last executed)
+# This replaces Spring Cloud Gateway functionality
+# ============================================================
+
+# 1. Logging middleware (outermost - logs all requests)
 app.add_middleware(LoggingMiddleware)
 
-# Set all CORS enabled origins
+# 2. Request ID middleware (generates request IDs for tracing)
+app.add_middleware(RequestIDMiddleware)
+
+# 3. CORS middleware (handles cross-origin requests)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=settings.ALLOWED_METHODS,
     allow_headers=settings.ALLOWED_HEADERS,
+)
+
+# 4. Rate limiter middleware (protects against abuse)
+# Similar to Spring Cloud Gateway's RequestRateLimiter
+app.add_middleware(
+    RateLimiterMiddleware,
+    requests_per_window=getattr(settings, 'RATE_LIMIT_REQUESTS', 100),
+    window_seconds=getattr(settings, 'RATE_LIMIT_WINDOW', 60),
+)
+
+# 5. API Gateway middleware (JWT extraction, adds user-id/org-id headers)
+# Similar to Spring Cloud Gateway's JwtAuthenticationFilter
+app.add_middleware(
+    APIGatewayMiddleware,
+    enforce_auth=False,  # Don't enforce at middleware level, let route handlers decide
 )
 
 # Register exception handlers
@@ -114,16 +139,29 @@ if settings.FILE_STORAGE_TYPE.lower() == "local":
 
 @app.get("/")
 async def root():
+    """Root endpoint - API information."""
     logger.info("Root endpoint accessed", endpoint="/")
 
     response_data = {
-        "message": "Welcome to FastAPI Backend Template",
+        "message": "Welcome to Kolate API",
         "version": "1.0.0",
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
+        "docs_url": "/docs",
+        "api_prefix": "/api/v1",
     }
 
     logger.debug("Root endpoint response prepared", response_data=response_data)
     return response_data
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for load balancers and monitoring."""
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "environment": settings.ENVIRONMENT,
+    }
 
 
 if __name__ == "__main__":
