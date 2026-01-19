@@ -21,11 +21,12 @@ This file provides context for Claude to assist with the Kolate App migration pr
 ## Migration Prompts Location
 
 Sequential prompts are in `prompts/` folder:
+- **Phase 0**: `prompts/phase-0-context-building/` (3 prompts) - **START HERE**
 - **Phase 1**: `prompts/phase-1-backend-consolidation/` (6 prompts)
 - **Phase 2**: `prompts/phase-2-frontend-migration/` (4 prompts)
 - **Phase 3**: `prompts/phase-3-ui-ux-modernization/` (4 prompts)
 
-Execute prompts in order. See `prompts/README.md` for full overview.
+**Important**: Start with Phase 0 to build context before implementing changes. Execute prompts in order. See `prompts/README.md` for full overview.
 
 ---
 
@@ -250,6 +251,7 @@ When building UI components:
 
 ### Migration Prompts
 - Overview: `prompts/README.md`
+- Phase 0 (Context): `prompts/phase-0-context-building/`
 - Phase 1 (Backend): `prompts/phase-1-backend-consolidation/`
 - Phase 2 (Frontend): `prompts/phase-2-frontend-migration/`
 - Phase 3 (UI/UX): `prompts/phase-3-ui-ux-modernization/`

@@ -18,6 +18,15 @@ This folder contains sequential prompts to migrate from the existing Spring Boot
 
 ## Phase Structure
 
+### Phase 0: Context Building (3 prompts)
+Build comprehensive understanding of both the template and existing architecture before migration.
+
+| # | Prompt | Purpose |
+|---|--------|---------|
+| 01 | [Explore Backend Template](phase-0-context-building/01-explore-backend-template.md) | Understand FastAPI template patterns |
+| 02 | [Explore Existing Architecture](phase-0-context-building/02-explore-existing-architecture.md) | Inventory all microservices, entities, endpoints |
+| 03 | [Create Migration Mapping](phase-0-context-building/03-create-migration-mapping.md) | Map old components to new locations |
+
 ### Phase 1: Backend Consolidation (6 prompts)
 Consolidate all Spring Boot microservices into one FastAPI application.
 
@@ -61,7 +70,7 @@ Modernize the frontend using best practices.
 
 ### Example Usage
 ```
-1. Open prompt file: prompts/phase-1-backend-consolidation/01-project-setup.md
+1. Open prompt file: prompts/phase-0-context-building/01-explore-backend-template.md
 2. Copy the prompt content
 3. Paste into Claude Code
 4. Review and approve changes
@@ -97,11 +106,12 @@ Modernize the frontend using best practices.
 
 | Phase | Prompts | Complexity |
 |-------|---------|------------|
+| Phase 0 | 3 | Low (Research) |
 | Phase 1 | 6 | High |
 | Phase 2 | 4 | Medium |
 | Phase 3 | 4 | Medium |
 
-**Total**: 14 sequential prompts
+**Total**: 17 sequential prompts
 
 ---
 
