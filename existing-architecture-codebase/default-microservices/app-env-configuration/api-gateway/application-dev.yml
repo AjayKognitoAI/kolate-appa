@@ -1,0 +1,36 @@
+redis:
+  host: 10.0.8.57
+  port: 6379
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+# Auth0 Configuration
+auth0:
+  domain: auth-dev.kolate.ai
+  issuer: https://auth-dev.kolate.ai/
+  audience: https://kolate-dev.com
+  jwks-uri: https://auth-dev.kolate.ai/.well-known/jwks.json
+  token-validation:
+    enabled: true
+    require-issuer: true
+    require-audience: true
+
+app:
+  cors:
+    allowed-origins:
+      - "*"  # Use "*" for public access (no credentials allowed)
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - Ngrok-Skip-Browser-Warning
+    allow-credentials: false  # Must be false if origins include "*"
+    max-age: 3600

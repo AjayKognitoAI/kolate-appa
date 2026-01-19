@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: message-publisher
+  config:
+    import: configserver:http://${CONFIG_SERVER:config-server}:8888
+  profiles:
+    active:
+      - local

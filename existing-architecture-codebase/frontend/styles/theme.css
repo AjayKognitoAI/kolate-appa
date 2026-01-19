@@ -1,0 +1,457 @@
+:root {
+  /* Primary Colors */
+  --primary-50: #fbfcff; /* HEX: #fbfcff | RGB: 251,252,255 | HSL: 225,100%,99% | OKLCH: 98.8%,0.011,253.3 */
+  --primary-100: #f0f4fd; /* HEX: #f0f4fd | RGB: 240,244,253 | HSL: 221,83%,97% | OKLCH: 95.7%,0.027,249.2 */
+  --primary-200: #dee6fb; /* HEX: #dee6fb | RGB: 222,230,251 | HSL: 220,82%,93% | OKLCH: 91.3%,0.044,245.7 */
+  --primary-300: #c5d2f7; /* HEX: #c5d2f7 | RGB: 197,210,247 | HSL: 222,82%,87% | OKLCH: 85.2%,0.063,244.1 */
+  --primary-400: #a4b9f3; /* HEX: #a4b9f3 | RGB: 164,185,243 | HSL: 222,81%,80% | OKLCH: 77.5%,0.082,243.4 */
+  --primary-500: #7c9aed; /* HEX: #7c9aed | RGB: 124,154,237 | HSL: 222,79%,71% | OKLCH: 68.5%,0.102,245.1 */
+  --primary-600: #4c75e7; /* HEX: #4c75e7 | RGB: 76,117,231 | HSL: 222,79%,60% | OKLCH: 58.2%,0.121,252.1 */
+  --primary-700: #1d4fd7; /* HEX: #1d4fd7 | RGB: 29,79,215 | HSL: 222,76%,48% | OKLCH: 46.6%,0.137,258.6 */
+  --primary-800: #102c79; /* HEX: #102c79 | RGB: 16,44,121 | HSL: 222,77%,27% | OKLCH: 31.1%,0.129,262.4 */
+  --primary-900: #091740; /* HEX: #091740 | RGB: 9,23,64 | HSL: 222,75%,14% | OKLCH: 18.2%,0.107,264.9 */
+  --primary-950: #06102d; /* HEX: #06102d | RGB: 6,16,45 | HSL: 222,76%,10% | OKLCH: 13.9%,0.095,265.8 */
+  --primary: var(--primary-700);
+  /* Gray Colors */
+  --gray-50: #f9f9f9; /* HEX: #fcfcfd | RGB: 252,252,253 | HSL: 240,20%,99% | OKLCH: 98.9%,0.002,266.5 */
+  --gray-100: #f1f3f6; /* HEX: #f1f3f6 | RGB: 241,243,246 | HSL: 220,20%,95% | OKLCH: 95.6%,0.010,249.8 */
+  --gray-200: #e0e4ea; /* HEX: #e0e4ea | RGB: 224,228,234 | HSL: 220,20%,90% | OKLCH: 90.7%,0.018,246.9 */
+  --gray-300: #c8ced9; /* HEX: #c8ced9 | RGB: 200,206,217 | HSL: 220,20%,82% | OKLCH: 83.1%,0.025,246.1 */
+  --gray-400: #a8b3c4; /* HEX: #a8b3c4 | RGB: 168,179,196 | HSL: 220,20%,71% | OKLCH: 73.5%,0.033,245.7 */
+  --gray-500: #8292aa; /* HEX: #8292aa | RGB: 130,146,170 | HSL: 220,20%,59% | OKLCH: 61.6%,0.041,244.8 */
+  --gray-600: #5b6b86; /* HEX: #5b6b86 | RGB: 91,107,134 | HSL: 220,19%,44% | OKLCH: 47.5%,0.047,245.6 */
+  --gray-700: #384252; /* HEX: #384252 | RGB: 56,66,82 | HSL: 220,19%,27% | OKLCH: 32.2%,0.043,247.3 */
+  --gray-800: #242b35; /* HEX: #242b35 | RGB: 36,43,53 | HSL: 220,19%,17% | OKLCH: 22.3%,0.036,249.1 */
+  --gray-900: #191d24; /* HEX: #191d24 | RGB: 25,29,36 | HSL: 220,18%,12% | OKLCH: 16.1%,0.029,250.3 */
+  --gray-950: #15181e; /* HEX: #15181e | RGB: 21,24,30 | HSL: 220,18%,10% | OKLCH: 13.7%,0.026,250.9 */
+
+  /* Red Colors */
+  --red-50: #fefbfb; /* HEX: #fefbfb | RGB: 254,251,251 | HSL: 0,60%,99% | OKLCH: 98.9%,0.006,24.9 */
+  --red-100: #fdf0f0; /* HEX: #fdf0f0 | RGB: 253,240,240 | HSL: 0,87%,97% | OKLCH: 95.9%,0.019,24.3 */
+  --red-200: #fadddd; /* HEX: #fadddd | RGB: 250,221,221 | HSL: 0,84%,92% | OKLCH: 91.0%,0.040,23.0 */
+  --red-300: #f6c2c2; /* HEX: #f6c2c2 | RGB: 246,194,194 | HSL: 0,82%,86% | OKLCH: 84.6%,0.067,23.5 */
+  --red-400: #f1a0a0; /* HEX: #f1a0a0 | RGB: 241,160,160 | HSL: 0,79%,79% | OKLCH: 76.3%,0.096,24.2 */
+  --red-500: #ea7676; /* HEX: #ea7676 | RGB: 234,118,118 | HSL: 0,77%,69% | OKLCH: 67.0%,0.124,25.0 */
+  --red-600: #e34444; /* HEX: #e34444 | RGB: 227,68,68 | HSL: 0,74%,58% | OKLCH: 57.9%,0.151,25.7 */
+  --red-700: #c81e1e; /* HEX: #c81e1e | RGB: 200,30,30 | HSL: 0,74%,45% | OKLCH: 47.4%,0.162,26.8 */
+  --red-800: #711111; /* HEX: #711111 | RGB: 113,17,17 | HSL: 0,74%,25% | OKLCH: 29.9%,0.126,27.9 */
+  --red-900: #3e0909; /* HEX: #3e0909 | RGB: 62,9,9 | HSL: 0,75%,14% | OKLCH: 18.0%,0.089,28.5 */
+  --red-950: #2c0707; /* HEX: #2c0707 | RGB: 44,7,7 | HSL: 0,73%,10% | OKLCH: 13.8%,0.073,28.7 */
+
+  /* Orange Colors */
+  --orange-50: #fefcfa; /* HEX: #fefcfa | RGB: 254,252,250 | HSL: 30,80%,99% | OKLCH: 99.0%,0.006,60.3 */
+  --orange-100: #fdf3eb; /* HEX: #fdf3eb | RGB: 253,243,235 | HSL: 30,87%,96% | OKLCH: 96.5%,0.023,56.7 */
+  --orange-200: #fae5d2; /* HEX: #fae5d2 | RGB: 250,229,210 | HSL: 30,84%,90% | OKLCH: 92.5%,0.045,54.3 */
+  --orange-300: #f6d1b0; /* HEX: #f6d1b0 | RGB: 246,209,176 | HSL: 30,83%,83% | OKLCH: 87.2%,0.071,52.7 */
+  --orange-400: #f1b783; /* HEX: #f1b783 | RGB: 241,183,131 | HSL: 30,80%,73% | OKLCH: 80.3%,0.099,50.9 */
+  --orange-500: #eb974d; /* HEX: #eb974d | RGB: 235,151,77 | HSL: 30,78%,61% | OKLCH: 72.2%,0.127,48.6 */
+  --orange-600: #d97218; /* HEX: #d97218 | RGB: 217,114,24 | HSL: 30,80%,47% | OKLCH: 62.1%,0.142,45.7 */
+  --orange-700: #8e4b10; /* HEX: #8e4b10 | RGB: 142,75,16 | HSL: 30,80%,31% | OKLCH: 42.9%,0.121,45.7 */
+  --orange-800: #592f0a; /* HEX: #592f0a | RGB: 89,47,10 | HSL: 30,80%,19% | OKLCH: 28.8%,0.098,46.0 */
+  --orange-900: #391e06; /* HEX: #391e06 | RGB: 57,30,6 | HSL: 30,81%,12% | OKLCH: 19.3%,0.081,46.2 */
+  --orange-950: #2e1805; /* HEX: #2e1805 | RGB: 46,24,5 | HSL: 30,80%,10% | OKLCH: 16.0%,0.073,46.3 */
+
+  /* Green Colors */
+  --green-50: #f9fffd; /* HEX: #f9fffd | RGB: 249,255,253 | HSL: 160,100%,99% | OKLCH: 99.0%,0.009,168.5 */
+  --green-100: #e7fef8; /* HEX: #e7fef8 | RGB: 231,254,248 | HSL: 164,91%,95% | OKLCH: 96.9%,0.032,171.0 */
+  --green-200: #c9fdee; /* HEX: #c9fdee | RGB: 201,253,238 | HSL: 164,96%,89% | OKLCH: 93.4%,0.058,171.7 */
+  --green-300: #9ffce1; /* HEX: #9ffce1 | RGB: 159,252,225 | HSL: 164,96%,81% | OKLCH: 88.9%,0.088,172.4 */
+  --green-400: #69fad1; /* HEX: #69fad1 | RGB: 105,250,209 | HSL: 164,94%,70% | OKLCH: 83.2%,0.119,173.1 */
+  --green-500: #27f7bc; /* HEX: #27f7bc | RGB: 39,247,188 | HSL: 164,93%,56% | OKLCH: 78.0%,0.152,173.9 */
+  --green-600: #07c690; /* HEX: #07c690 | RGB: 7,198,144 | HSL: 164,93%,40% | OKLCH: 68.2%,0.149,175.0 */
+  --green-700: #046c4f; /* HEX: #046c4f | RGB: 4,108,79 | HSL: 164,93%,22% | OKLCH: 46.3%,0.117,178.1 */
+  --green-800: #034b37; /* HEX: #034b37 | RGB: 3,75,55 | HSL: 164,92%,15% | OKLCH: 32.9%,0.095,180.3 */
+  --green-900: #023829; /* HEX: #023829 | RGB: 2,56,41 | HSL: 164,93%,11% | OKLCH: 25.1%,0.082,181.7 */
+  --green-950: #023124; /* HEX: #023124 | RGB: 2,49,36 | HSL: 164,92%,10% | OKLCH: 21.6%,0.075,182.3 */
+
+  /* Indigo Colors */
+  --indigo-50: #fcfcfe; /* HEX: #fcfcfe | RGB: 252,252,254 | HSL: 240,66%,99% | OKLCH: 98.9%,0.004,270.0 */
+  --indigo-100: #f4f3fc; /* HEX: #f4f3fc | RGB: 244,243,252 | HSL: 248,64%,97% | OKLCH: 95.9%,0.022,274.8 */
+  --indigo-200: #e7e5f8; /* HEX: #e7e5f8 | RGB: 231,229,248 | HSL: 248,67%,93% | OKLCH: 91.5%,0.041,277.9 */
+  --indigo-300: #d4d1f3; /* HEX: #d4d1f3 | RGB: 212,209,243 | HSL: 246,68%,89% | OKLCH: 85.5%,0.060,278.1 */
+  --indigo-400: #bbb7ec; /* HEX: #bbb7ec | RGB: 187,183,236 | HSL: 245,67%,82% | OKLCH: 77.8%,0.080,278.4 */
+  --indigo-500: #9d97e3; /* HEX: #9d97e3 | RGB: 157,151,227 | HSL: 245,67%,74% | OKLCH: 68.8%,0.097,278.9 */
+  --indigo-600: #7a71d9; /* HEX: #7a71d9 | RGB: 122,113,217 | HSL: 246,67%,65% | OKLCH: 58.7%,0.113,279.1 */
+  --indigo-700: #5146ce; /* HEX: #5146ce | RGB: 81,70,206 | HSL: 245,66%,54% | OKLCH: 48.0%,0.131,279.2 */
+  --indigo-800: #272077; /* HEX: #272077 | RGB: 39,32,119 | HSL: 246,58%,30% | OKLCH: 28.9%,0.112,281.1 */
+  --indigo-900: #14103c; /* HEX: #14103c | RGB: 20,16,60 | HSL: 246,58%,15% | OKLCH: 16.6%,0.090,282.5 */
+  --indigo-950: #0d0b28; /* HEX: #0d0b28 | RGB: 13,11,40 | HSL: 246,57%,10% | OKLCH: 12.2%,0.076,283.1 */
+
+  /* Purple Colors */
+  --purple-50: #fdfcfe; /* HEX: #fdfcfe | RGB: 253,252,254 | HSL: 280,66%,99% | OKLCH: 99.0%,0.003,295.7 */
+  --purple-100: #f6f2fd; /* HEX: #f6f2fd | RGB: 246,242,253 | HSL: 280,76%,97% | OKLCH: 96.1%,0.021,293.1 */
+  --purple-200: #eae1fa; /* HEX: #eae1fa | RGB: 234,225,250 | HSL: 280,76%,93% | OKLCH: 91.3%,0.045,290.6 */
+  --purple-300: #dacaf6; /* HEX: #dacaf6 | RGB: 218,202,246 | HSL: 280,77%,88% | OKLCH: 85.1%,0.068,289.3 */
+  --purple-400: #c5acf0; /* HEX: #c5acf0 | RGB: 197,172,240 | HSL: 280,76%,81% | OKLCH: 77.2%,0.089,287.2 */
+  --purple-500: #ac88ea; /* HEX: #ac88ea | RGB: 172,136,234 | HSL: 280,76%,73% | OKLCH: 68.2%,0.110,285.4 */
+  --purple-600: #8d5ce2; /* HEX: #8d5ce2 | RGB: 141,92,226 | HSL: 280,76%,62% | OKLCH: 58.0%,0.130,284.7 */
+  --purple-700: #6b2bda; /* HEX: #6b2bda | RGB: 107,43,218 | HSL: 280,77%,51% | OKLCH: 47.9%,0.152,283.8 */
+  --purple-800: #3b167a; /* HEX: #3b167a | RGB: 59,22,122 | HSL: 280,70%,28% | OKLCH: 29.4%,0.123,285.3 */
+  --purple-900: #1e0b3f; /* HEX: #1e0b3f | RGB: 30,11,63 | HSL: 280,70%,14% | OKLCH: 17.0%,0.096,286.9 */
+  --purple-950: #15082b; /* HEX: #15082b | RGB: 21,8,43 | HSL: 280,69%,10% | OKLCH: 12.5%,0.082,287.7 */
+
+  /* Pink Colors */
+  --pink-50: #fffbfc; /* HEX: #fffbfc | RGB: 255,251,252 | HSL: 345,100%,99% | OKLCH: 99.0%,0.006,342.1 */
+  --pink-100: #fdeef5; /* HEX: #fdeef5 | RGB: 253,238,245 | HSL: 340,83%,96% | OKLCH: 95.9%,0.024,341.5 */
+  --pink-200: #fbd8e8; /* HEX: #fbd8e8 | RGB: 251,216,232 | HSL: 338,87%,91% | OKLCH: 91.1%,0.047,341.0 */
+  --pink-300: #f9bad5; /* HEX: #f9bad5 | RGB: 249,186,213 | HSL: 338,87%,85% | OKLCH: 84.6%,0.073,340.5 */
+  --pink-400: #f593be; /* HEX: #f593be | RGB: 245,147,190 | HSL: 338,84%,77% | OKLCH: 76.3%,0.100,340.1 */
+  --pink-500: #f164a1; /* HEX: #f164a1 | RGB: 241,100,161 | HSL: 338,84%,67% | OKLCH: 66.8%,0.128,339.4 */
+  --pink-600: #eb2c7f; /* HEX: #eb2c7f | RGB: 235,44,127 | HSL: 338,84%,55% | OKLCH: 57.1%,0.154,338.9 */
+  --pink-700: #bf125d; /* HEX: #bf125d | RGB: 191,18,93 | HSL: 338,83%,41% | OKLCH: 46.1%,0.155,338.6 */
+  --pink-800: #6f0a36; /* HEX: #6f0a36 | RGB: 111,10,54 | HSL: 338,83%,24% | OKLCH: 29.4%,0.121,339.5 */
+  --pink-900: #3f061e; /* HEX: #3f061e | RGB: 63,6,30 | HSL: 338,82%,14% | OKLCH: 17.8%,0.087,340.3 */
+  --pink-950: #2f0417; /* HEX: #2f0417 | RGB: 47,4,23 | HSL: 338,84%,10% | OKLCH: 13.6%,0.073,340.6 */
+
+  /* Primary Gradients */
+  --gradient-primary-horizontal: linear-gradient(
+    to right,
+    var(--primary-500),
+    var(--primary-700)
+  );
+  --gradient-primary-vertical: linear-gradient(
+    to bottom,
+    var(--primary-500),
+    var(--primary-700)
+  );
+  --gradient-primary-diagonal: linear-gradient(
+    135deg,
+    var(--primary-500),
+    var(--primary-700)
+  );
+  --gradient-primary-radial: radial-gradient(
+    circle,
+    var(--primary-500) 0%,
+    var(--primary-700) 100%
+  );
+  --gradient-primary-light: linear-gradient(
+    to right,
+    var(--primary-400),
+    var(--primary-600)
+  );
+  --gradient-primary-dark: linear-gradient(
+    to right,
+    var(--primary-600),
+    var(--primary-800)
+  );
+
+  /* UI Semantic Colors */
+  --color-background: var(--gray-50);
+  --color-surface: var(--gray-100);
+  --color-surface-variant: var(--gray-200);
+  --color-on-background: var(--gray-900);
+  --color-on-surface: var(--gray-900);
+  --color-on-surface-variant: var(--gray-700);
+
+  --color-primary: var(--primary-600);
+  --color-on-primary: white;
+  --color-primary-container: var(--primary-100);
+  --color-on-primary-container: var(--primary-900);
+
+  --color-secondary: var(--gray-600);
+  --color-on-secondary: white;
+  --color-secondary-container: var(--gray-100);
+  --color-on-secondary-container: var(--gray-800);
+
+  --color-error: var(--red-600);
+  --color-on-error: white;
+  --color-error-container: var(--red-100);
+  --color-on-error-container: var(--red-900);
+
+  --color-success: var(--green-600);
+  --color-on-success: white;
+  --color-success-container: var(--green-100);
+  --color-on-success-container: var(--green-900);
+
+  --color-warning: var(--orange-600);
+  --color-on-warning: white;
+  --color-warning-container: var(--orange-100);
+  --color-on-warning-container: var(--orange-900);
+
+  --color-info: var(--primary-600);
+  --color-on-info: white;
+  --color-info-container: var(--primary-100);
+  --color-on-info-container: var(--primary-900);
+
+  --color-outline: var(--gray-300);
+  --color-outline-variant: var(--gray-200);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Font Family */
+  --font-primary: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, sans-serif;
+
+  /* Font Weights - As specified */
+  --font-light: 300;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* Base Font Size - 16px default */
+  --font-size-base: 1rem;
+
+  /* Type Scale - Exact sizes as specified */
+  --font-size-3xs: 0.5rem; /* 8px */
+  --font-size-2xs: 0.625rem; /* 10px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem; /* 16px (base) */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 2rem; /* 32px */
+  --font-size-4xl: 2.5rem; /* 40px */
+
+  /* Line Heights (unitless for better scaling) */
+  --line-height-none: 1; /* Headings, buttons */
+  --line-height-tight: 1.25; /* Short text */
+  --line-height-snug: 1.375; /* Medium text */
+  --line-height-normal: 1.5; /* Body text */
+  --line-height-relaxed: 1.625; /* Longer text */
+  --line-height-loose: 1.75; /* Very readable */
+
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* Max Line Length for optimal readability */
+  --max-width-xs: 20ch; /* Very short */
+  --max-width-sm: 45ch; /* Short form */
+  --max-width-md: 65ch; /* Optimal (body text) */
+  --max-width-lg: 75ch; /* Long form */
+
+  /* Spacing (based on 8pt grid) */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.5rem; /* 24px */
+  --space-6: 2rem; /* 32px */
+  --space-7: 2.5rem; /* 40px */
+  --space-8: 3rem; /* 48px */
+}
+
+/* Dark Mode Theme */
+/* [data-theme="dark"] {
+  --primary-50: #06102d; 
+  --primary-100: #091740; 
+  --primary-200: #102c79; 
+  --primary-300: #1d4fd7; 
+  --primary-400: #4c75e7; 
+  --primary-500: #7c9aed; 
+  --primary-600: #a4b9f3;
+  --primary-700: #c5d2f7; 
+  --primary-800: #dee6fb; 
+  --primary-900: #f0f4fd; 
+  --primary-950: #fbfcff; 
+
+  --gray-50: #15181e; 
+  --gray-100: #191d24;
+  --gray-200: #242b35; 
+  --gray-300: #384252; 
+  --gray-400: #5b6b86; 
+  --gray-500: #8292aa;
+  --gray-600: #a8b3c4; 
+  --gray-700: #c8ced9;
+  --gray-800: #e0e4ea; 
+  --gray-900: #f1f3f6; 
+  --gray-950: #fcfcfd; 
+
+  --red-50: #2c0707;
+  --red-100: #3e0909;
+  --red-200: #711111;
+  --red-300: #c81e1e;
+  --red-400: #e34444;
+  --red-500: #ea7676;
+  --red-600: #f1a0a0;
+  --red-700: #f6c2c2;
+  --red-800: #fadddd;
+  --red-900: #fdf0f0;
+  --red-950: #fefbfb;
+
+  --orange-50: #2e1805;
+  --orange-100: #391e06;
+  --orange-200: #592f0a;
+  --orange-300: #8e4b10;
+  --orange-400: #d97218;
+  --orange-500: #eb974d;
+  --orange-600: #f1b783;
+  --orange-700: #f6d1b0;
+  --orange-800: #fae5d2;
+  --orange-900: #fdf3eb;
+  --orange-950: #fefcfa;
+
+  --green-50: #023124;
+  --green-100: #023829;
+  --green-200: #034b37;
+  --green-300: #046c4f;
+  --green-400: #07c690;
+  --green-500: #27f7bc;
+  --green-600: #69fad1;
+  --green-700: #9ffce1;
+  --green-800: #c9fdee;
+  --green-900: #e7fef8;
+  --green-950: #f9fffd;
+
+  --indigo-50: #0d0b28;
+  --indigo-100: #14103c;
+  --indigo-200: #272077;
+  --indigo-300: #5146ce;
+  --indigo-400: #7a71d9;
+  --indigo-500: #9d97e3;
+  --indigo-600: #bbb7ec;
+  --indigo-700: #d4d1f3;
+  --indigo-800: #e7e5f8;
+  --indigo-900: #f4f3fc;
+  --indigo-950: #fcfcfe;
+
+  --purple-50: #15082b;
+  --purple-100: #1e0b3f;
+  --purple-200: #3b167a;
+  --purple-300: #6b2bda;
+  --purple-400: #8d5ce2;
+  --purple-500: #ac88ea;
+  --purple-600: #c5acf0;
+  --purple-700: #dacaf6;
+  --purple-800: #eae1fa;
+  --purple-900: #f6f2fd;
+  --purple-950: #fdfcfe;
+
+  --pink-50: #2f0417;
+  --pink-100: #3f061e;
+  --pink-200: #6f0a36;
+  --pink-300: #bf125d;
+  --pink-400: #eb2c7f;
+  --pink-500: #f164a1;
+  --pink-600: #f593be;
+  --pink-700: #f9bad5;
+  --pink-800: #fbd8e8;
+  --pink-900: #fdeef5;
+  --pink-950: #fffbfc;
+
+  --gradient-primary-horizontal: linear-gradient(
+    to right,
+    var(--primary-500),
+    var(--primary-300)
+  );
+  --gradient-primary-vertical: linear-gradient(
+    to bottom,
+    var(--primary-500),
+    var(--primary-300)
+  );
+  --gradient-primary-diagonal: linear-gradient(
+    135deg,
+    var(--primary-500),
+    var(--primary-300)
+  );
+  --gradient-primary-radial: radial-gradient(
+    circle,
+    var(--primary-500) 0%,
+    var(--primary-300) 100%
+  );
+  --gradient-primary-light: linear-gradient(
+    to right,
+    var(--primary-600),
+    var(--primary-400)
+  );
+  --gradient-primary-dark: linear-gradient(
+    to right,
+    var(--primary-400),
+    var(--primary-200)
+  );
+
+  --color-background: var(--gray-50);
+  --color-surface: var(--gray-100);
+  --color-surface-variant: var(--gray-200);
+  --color-on-background: var(--gray-900);
+  --color-on-surface: var(--gray-900);
+  --color-on-surface-variant: var(--gray-700);
+
+  --color-primary: var(--primary-400);
+  --color-on-primary: var(--gray-950);
+  --color-primary-container: var(--primary-200);
+  --color-on-primary-container: var(--primary-950);
+
+  --color-secondary: var(--gray-500);
+  --color-on-secondary: var(--gray-950);
+  --color-secondary-container: var(--gray-200);
+  --color-on-secondary-container: var(--gray-900);
+
+  --color-error: var(--red-400);
+  --color-on-error: var(--gray-950);
+  --color-error-container: var(--red-200);
+  --color-on-error-container: var(--red-950);
+
+  --color-success: var(--green-400);
+  --color-on-success: var(--gray-950);
+  --color-success-container: var(--green-200);
+  --color-on-success-container: var(--green-950);
+
+  --color-warning: var(--orange-400);
+  --color-on-warning: var(--gray-950);
+  --color-warning-container: var(--orange-200);
+  --color-on-warning-container: var(--orange-950);
+
+  --color-info: var(--primary-400);
+  --color-on-info: var(--gray-950);
+  --color-info-container: var(--primary-200);
+  --color-on-info-container: var(--primary-950);
+
+  --color-outline: var(--gray-600);
+  --color-outline-variant: var(--gray-700);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.15);
+} */
+
+/* @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary-50: #06102d;
+    --primary-100: #091740;
+    --primary-200: #102c79;
+    --primary-300: #1d4fd7;
+    --primary-400: #4c75e7;
+    --primary-500: #7c9aed;
+    --primary-600: #a4b9f3;
+    --primary-700: #c5d2f7;
+    --primary-800: #dee6fb;
+    --primary-900: #f0f4fd;
+    --primary-950: #fbfcff;
+
+    --gray-50: #15181e;
+    --gray-100: #191d24;
+    --gray-200: #242b35;
+    --gray-300: #384252;
+    --gray-400: #5b6b86;
+    --gray-500: #8292aa;
+    --gray-600: #a8b3c4;
+    --gray-700: #c8ced9;
+    --gray-800: #e0e4ea;
+    --gray-900: #f1f3f6;
+    --gray-950: #fcfcfd;
+
+    --color-background: var(--gray-50);
+    --color-surface: var(--gray-100);
+    --color-surface-variant: var(--gray-200);
+    --color-on-background: var(--gray-900);
+    --color-on-surface: var(--gray-900);
+    --color-on-surface-variant: var(--gray-700);
+
+    --color-primary: var(--primary-400);
+    --color-on-primary: var(--gray-950);
+  }
+} */

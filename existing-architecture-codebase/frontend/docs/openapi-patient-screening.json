@@ -1,0 +1,4335 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "patient-screening-service",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/patient-screening/v1/studies": {
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Create Study",
+        "description": "Create a new study",
+        "operationId": "create_study_api_patient_screening_v1_studies_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "List Studies",
+        "description": "List all studies with pagination, sorting, search, and status filter",
+        "operationId": "list_studies_api_patient_screening_v1_studies_get",
+        "parameters": [
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(created_at|updated_at|name|status)$",
+              "default": "created_at",
+              "title": "Sort By"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(asc|desc)$",
+              "default": "desc",
+              "title": "Sort Direction"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(draft|active|completed|archived)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Get Study",
+        "description": "Get study by ID with counts",
+        "operationId": "get_study_api_patient_screening_v1_studies__study_id__get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyWithCountsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Update Study",
+        "description": "Update a study",
+        "operationId": "update_study_api_patient_screening_v1_studies__study_id__put",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Delete Study",
+        "description": "Delete a study and all associated data (cascades to master data, cohorts, and activities)",
+        "operationId": "delete_study_api_patient_screening_v1_studies__study_id__delete",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/master-data": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Get Study Master Data",
+        "description": "Get all master data files for a study",
+        "operationId": "get_study_master_data_api_patient_screening_v1_studies__study_id__master_data_get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/cohorts": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Get Study Cohorts",
+        "description": "Get all cohorts for a study",
+        "operationId": "get_study_cohorts_api_patient_screening_v1_studies__study_id__cohorts_get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/cohort-patient-ids": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Get Study Cohort Patient Ids",
+        "description": "Get all patient IDs from all cohorts within a study.\nUsed for \"belongs to cohort\" / \"not belongs to cohort\" filter conditions.",
+        "operationId": "get_study_cohort_patient_ids_api_patient_screening_v1_studies__study_id__cohort_patient_ids_get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyCohortPatientIdsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/upload-master-data": {
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Upload Master Data For Study",
+        "description": "Upload patient master data file for a specific study",
+        "operationId": "upload_master_data_for_study_api_patient_screening_v1_studies__study_id__upload_master_data_post",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_master_data_for_study_api_patient_screening_v1_studies__study_id__upload_master_data_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterDataUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/merge-cohort": {
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Merge Cohort With New Columns",
+        "description": "Create new master data by merging filtered patients from a cohort\nwith additional columns from an uploaded file",
+        "operationId": "merge_cohort_with_new_columns_api_patient_screening_v1_studies__study_id__merge_cohort_post",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "source_cohort_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Cohort Id"
+            }
+          },
+          {
+            "name": "merge_column",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Merge Column"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Custom name for the merged master data",
+              "title": "Name"
+            },
+            "description": "Custom name for the merged master data"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_merge_cohort_with_new_columns_api_patient_screening_v1_studies__study_id__merge_cohort_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeResultResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/filters": {
+      "post": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "Create Filter",
+        "description": "Create a new saved filter",
+        "operationId": "create_filter_api_patient_screening_v1_filters_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedFilterCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedFilterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "List Filters",
+        "description": "List saved filters with pagination",
+        "operationId": "list_filters_api_patient_screening_v1_filters_get",
+        "parameters": [
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "include_templates",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Templates"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/filters/{filter_id}": {
+      "get": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "Get Filter",
+        "description": "Get filter by ID",
+        "operationId": "get_filter_api_patient_screening_v1_filters__filter_id__get",
+        "parameters": [
+          {
+            "name": "filter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Filter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedFilterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "Update Filter",
+        "description": "Update a filter",
+        "operationId": "update_filter_api_patient_screening_v1_filters__filter_id__put",
+        "parameters": [
+          {
+            "name": "filter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Filter Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedFilterUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedFilterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "Delete Filter",
+        "description": "Delete a filter",
+        "operationId": "delete_filter_api_patient_screening_v1_filters__filter_id__delete",
+        "parameters": [
+          {
+            "name": "filter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Filter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/cohorts": {
+      "post": {
+        "tags": [
+          "Cohorts"
+        ],
+        "summary": "Create Cohort",
+        "description": "Create a new cohort",
+        "operationId": "create_cohort_api_patient_screening_v1_cohorts_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CohortCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Cohorts"
+        ],
+        "summary": "List Cohorts",
+        "description": "List all cohorts with pagination, sorting, and search",
+        "operationId": "list_cohorts_api_patient_screening_v1_cohorts_get",
+        "parameters": [
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enterprise Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(created_at|updated_at|name|patient_count)$",
+              "default": "created_at",
+              "title": "Sort By"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(asc|desc)$",
+              "default": "desc",
+              "title": "Sort Direction"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/cohorts/{cohort_id}": {
+      "get": {
+        "tags": [
+          "Cohorts"
+        ],
+        "summary": "Get Cohort",
+        "description": "Get cohort by ID",
+        "operationId": "get_cohort_api_patient_screening_v1_cohorts__cohort_id__get",
+        "parameters": [
+          {
+            "name": "cohort_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cohort Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cohorts"
+        ],
+        "summary": "Update Cohort",
+        "description": "Update a cohort",
+        "operationId": "update_cohort_api_patient_screening_v1_cohorts__cohort_id__put",
+        "parameters": [
+          {
+            "name": "cohort_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cohort Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CohortUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CohortResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cohorts"
+        ],
+        "summary": "Delete Cohort",
+        "description": "Delete a cohort",
+        "operationId": "delete_cohort_api_patient_screening_v1_cohorts__cohort_id__delete",
+        "parameters": [
+          {
+            "name": "cohort_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cohort Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/cohorts/upload-master-data": {
+      "post": {
+        "tags": [
+          "Data Management"
+        ],
+        "summary": "Upload Master Data",
+        "description": "Upload patient master data file",
+        "operationId": "upload_master_data_api_patient_screening_v1_cohorts_upload_master_data_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_master_data_api_patient_screening_v1_cohorts_upload_master_data_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterDataUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/master-data/{master_data_id}/preview": {
+      "get": {
+        "tags": [
+          "Data Management"
+        ],
+        "summary": "Get Master Data Preview",
+        "description": "Get paginated rows from master data for preview and filtering.\n\nThis endpoint fetches actual patient data from the uploaded master data file,\nenabling features like:\n- Real values in filter autocomplete\n- Data preview before creating cohorts\n- CSV/Excel download of master data",
+        "operationId": "get_master_data_preview_api_patient_screening_v1_master_data__master_data_id__preview_get",
+        "parameters": [
+          {
+            "name": "master_data_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Master Data Id"
+            }
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Enterprise ID for authorization",
+              "title": "Enterprise Id"
+            },
+            "description": "Enterprise ID for authorization"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Page number (0-indexed)",
+              "default": 0,
+              "title": "Page"
+            },
+            "description": "Page number (0-indexed)"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Rows per page (1-1000)",
+              "default": 100,
+              "title": "Size"
+            },
+            "description": "Rows per page (1-1000)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterDataPreviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/master-data/validate-schema": {
+      "post": {
+        "tags": [
+          "Data Management"
+        ],
+        "summary": "Validate Schema",
+        "description": "DEPRECATED: Use POST /ai/process-criteria instead.\n\nValidate that a dataset schema has all required columns for the given criteria.\n\nThis endpoint uses AI to extract required column names from natural language\ninclusion/exclusion criteria and compares them against the provided dataset columns.\nWhen missing columns are detected, it suggests intelligent mappings using fuzzy\nstring matching and semantic analysis.\n\nUse case:\n- Frontend validates dataset selection during cohort creation\n- Ensures users select a dataset with all necessary fields before proceeding\n- Provides clear feedback on missing columns\n- Suggests intelligent column mappings to reduce manual mapping effort\n\nArgs:\n    request: Contains columns from dataset and inclusion/exclusion criteria\n\nReturns:\n    Validation result with is_valid flag, lists of missing/required columns,\n    and AI-suggested mappings for missing columns\n\nExample:\n    Request:\n    {\n        \"columns\": [\"patient_id\", \"patient_age\", \"gender\", \"easi_score\"],\n        \"inclusion_criteria\": \"Age \u003E= 18 years, EASI score \u003E 16, BMI \u003C 35\",\n        \"exclusion_criteria\": \"Active skin infection\"\n    }\n\n    Response:\n    {\n        \"status\": \"success\",\n        \"message\": \"Schema validation completed. 2 column(s) missing.\",\n        \"data\": {\n            \"is_valid\": false,\n            \"missing_columns\": [\"age\", \"bmi\", \"active_skin_infection\"],\n            \"required_columns\": [\"age\", \"bmi\", \"easi_score\", \"active_skin_infection\"],\n            \"available_columns\": [\"patient_id\", \"patient_age\", \"gender\", \"easi_score\"],\n            \"criteria_mapping\": [\n                {\"criterion\": \"Age \u003E= 18 years\", \"columns\": [\"age\"], \"type\": \"inclusion\"},\n                {\"criterion\": \"EASI score \u003E 16\", \"columns\": [\"easi_score\"], \"type\": \"inclusion\"},\n                {\"criterion\": \"BMI \u003C 35\", \"columns\": [\"bmi\"], \"type\": \"inclusion\"},\n                {\"criterion\": \"Active skin infection\", \"columns\": [\"active_skin_infection\"], \"type\": \"exclusion\"}\n            ],\n            \"suggested_mappings\": {\n                \"age\": \"patient_age\"\n            }\n        }\n    }",
+        "operationId": "validate_schema_api_patient_screening_v1_master_data_validate_schema_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateSchemaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateSchemaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/api/patient-screening/v1/cohorts/compare": {
+      "post": {
+        "tags": [
+          "Comparison"
+        ],
+        "summary": "Compare Cohorts",
+        "description": "Compare multiple cohorts",
+        "operationId": "compare_cohorts_api_patient_screening_v1_cohorts_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/studies/{study_id}/activity": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Study Activity",
+        "description": "Get activity logs for a study, optionally filtered by entity type and ID",
+        "operationId": "get_study_activity_api_patient_screening_v1_studies__study_id__activity_get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by entity type (study, master_data, cohort, filter)",
+              "title": "Entity Type"
+            },
+            "description": "Filter by entity type (study, master_data, cohort, filter)"
+          },
+          {
+            "name": "entity_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by specific entity ID",
+              "title": "Entity Id"
+            },
+            "description": "Filter by specific entity ID"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/analytics": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Analytics",
+        "description": "Get aggregated analytics",
+        "operationId": "get_analytics_api_patient_screening_v1_analytics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/ai/generate-filter": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Generate Filter From Criteria",
+        "description": "DEPRECATED: Use POST /ai/process-criteria instead.\n\nGenerate a filter from natural language inclusion/exclusion criteria.\n\nUses LLM to convert text-based eligibility criteria into structured filter rules\nthat can be applied to the patient data.\n\nYou can either:\n1. Provide master_data_id + enterprise_id to auto-fetch available columns\n2. Provide columns directly as a dictionary\n\nAt least one of inclusion_criteria or exclusion_criteria must be provided.",
+        "operationId": "generate_filter_from_criteria_api_patient_screening_v1_ai_generate_filter_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateFilterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateFilterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/api/patient-screening/v1/ai/generate-column-descriptions": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Generate Column Descriptions",
+        "description": "Generate clinical descriptions for dataset columns using AI.\n\nUses LLM to analyze column names and metadata to generate:\n- Clinical descriptions based on authoritative medical knowledge\n- Category classifications (Demographics, Clinical/Lab Values, Treatment History, etc.)\n- Confidence scores indicating reliability of the description (0-1)\n- Expanded abbreviations and units of measure where applicable\n\nInput modes:\n1. master_data_id + enterprise_id: Fetch columns from stored master data\n2. columns: Provide column metadata directly (name, data_type, sample_values)\n3. column_names: Simple list of column names\n\nDescriptions are grounded in widely accepted medical knowledge from sources like\npeer-reviewed literature, FDA/ICH-GCP guidance, WHO classifications, and CDISC standards.",
+        "operationId": "generate_column_descriptions_api_patient_screening_v1_ai_generate_column_descriptions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateColumnDescriptionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateColumnDescriptionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/ai/process-criteria": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Process Criteria Unified",
+        "description": "Process inclusion/exclusion criteria into sentence-by-sentence formulas.\n\nThis unified endpoint:\n1. Parses criteria text preserving exact user wording\n2. Generates filter formulas for each sentence\n3. Provides confidence-scored column suggestions (top 3 per field)\n4. Handles exclusions as negated formulas (ready to AND with inclusions)\n\nRequired fields:\n- columns: Column metadata (enhanced or simple format)\n- inclusion_criteria: Natural language inclusion criteria\n- exclusion_criteria: Natural language exclusion criteria\n\nEnhanced column format:\n```json\n{\n    \"age\": {\n        \"type\": \"number\",\n        \"description\": \"Patient age in years\",\n        \"sample_values\": [25, 45, 67],\n        \"unique_count\": 50,\n        \"null_count\": 2\n    }\n}\n```\n\nSimple column format (backward compatible):\n```json\n{\"age\": \"number\", \"gender\": \"categorical\"}\n```",
+        "operationId": "process_criteria_unified_api_patient_screening_v1_ai_process_criteria_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnifiedCriteriaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnifiedCriteriaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patient-screening/v1/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_api_patient_screening_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActivityResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ActivityResponse"
+      },
+      "AnalyticsResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AnalyticsResponse"
+      },
+      "Body_merge_cohort_with_new_columns_api_patient_screening_v1_studies__study_id__merge_cohort_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "Body_merge_cohort_with_new_columns_api_patient_screening_v1_studies__study_id__merge_cohort_post"
+      },
+      "Body_upload_master_data_api_patient_screening_v1_cohorts_upload_master_data_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "Body_upload_master_data_api_patient_screening_v1_cohorts_upload_master_data_post"
+      },
+      "Body_upload_master_data_for_study_api_patient_screening_v1_studies__study_id__upload_master_data_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "patient_id_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patient Id Column"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "Body_upload_master_data_for_study_api_patient_screening_v1_studies__study_id__upload_master_data_post"
+      },
+      "Cohort": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "study_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Study Id"
+          },
+          "master_data_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Master Data Id"
+          },
+          "columns": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Columns"
+          },
+          "filter_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Id"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterGroup-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria"
+          },
+          "filtered_patient_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filtered Patient Ids"
+          },
+          "patient_count": {
+            "type": "integer",
+            "title": "Patient Count"
+          },
+          "master_data_patient_count": {
+            "type": "integer",
+            "title": "Master Data Patient Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "study_id",
+          "master_data_id",
+          "columns",
+          "filter_id",
+          "filter",
+          "inclusion_criteria",
+          "exclusion_criteria",
+          "filtered_patient_ids",
+          "patient_count",
+          "master_data_patient_count",
+          "created_at",
+          "updated_at",
+          "created_by"
+        ],
+        "title": "Cohort"
+      },
+      "CohortCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "study_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Study Id"
+          },
+          "master_data_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Master Data Id"
+          },
+          "columns": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Columns"
+          },
+          "filter_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Id"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterGroup-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "save_filter_as": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save Filter As"
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria"
+          },
+          "filtered_patient_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filtered Patient Ids"
+          },
+          "patient_count": {
+            "type": "integer",
+            "title": "Patient Count",
+            "default": 0
+          },
+          "master_data_patient_count": {
+            "type": "integer",
+            "title": "Master Data Patient Count",
+            "default": 0
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "study_id",
+          "master_data_id",
+          "columns",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "CohortCreateRequest"
+      },
+      "CohortListResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "CohortListResponse"
+      },
+      "CohortPatientIds": {
+        "properties": {
+          "cohort_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Cohort Id"
+          },
+          "cohort_name": {
+            "type": "string",
+            "title": "Cohort Name"
+          },
+          "patient_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Patient Ids"
+          },
+          "patient_count": {
+            "type": "integer",
+            "title": "Patient Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cohort_id",
+          "cohort_name",
+          "patient_ids",
+          "patient_count"
+        ],
+        "title": "CohortPatientIds",
+        "description": "Patient IDs data for a single cohort"
+      },
+      "CohortResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Cohort"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "CohortResponse"
+      },
+      "CohortUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "filter_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Id"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterGroup-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria"
+          },
+          "filtered_patient_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filtered Patient Ids"
+          },
+          "patient_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patient Count"
+          },
+          "master_data_patient_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Master Data Patient Count"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "CohortUpdateRequest"
+      },
+      "ColumnCategory": {
+        "type": "string",
+        "enum": [
+          "Demographics",
+          "Clinical/Lab Values",
+          "Treatment History",
+          "Safety/Exclusions",
+          "Study-Specific",
+          "Administrative"
+        ],
+        "title": "ColumnCategory",
+        "description": "Clinical category classification for dataset columns"
+      },
+      "ColumnDescription": {
+        "properties": {
+          "column_name": {
+            "type": "string",
+            "title": "Column Name",
+            "description": "Original column name"
+          },
+          "clinical_description": {
+            "type": "string",
+            "title": "Clinical Description",
+            "description": "Clinical/medical description of the column"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ColumnCategory",
+            "description": "Clinical category classification"
+          },
+          "confidence_score": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Confidence Score",
+            "description": "Confidence score for the description (0-1)"
+          },
+          "abbreviation_expansion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abbreviation Expansion",
+            "description": "Expanded form if column name is an abbreviation (e.g., 'BMI' -\u003E 'Body Mass Index')"
+          },
+          "unit_of_measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Of Measure",
+            "description": "Standard unit of measure if applicable (e.g., 'kg/m2', 'mg/dL')"
+          },
+          "reference_range": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Range",
+            "description": "Normal/reference range if applicable (e.g., '18.5-24.9 for normal BMI')"
+          }
+        },
+        "type": "object",
+        "required": [
+          "column_name",
+          "clinical_description",
+          "category",
+          "confidence_score"
+        ],
+        "title": "ColumnDescription",
+        "description": "Clinical description for a single column"
+      },
+      "ColumnMetadata": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Column name"
+          },
+          "data_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Type",
+            "description": "Data type: 'string', 'number', or 'categorical'"
+          },
+          "sample_values": {
+            "anyOf": [
+              {
+                "items": {
+
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Values",
+            "description": "Sample values from the column (up to 10)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ColumnMetadata",
+        "description": "Metadata for a single column"
+      },
+      "ColumnSuggestion": {
+        "properties": {
+          "column": {
+            "type": "string",
+            "title": "Column",
+            "description": "Column name from available columns"
+          },
+          "confidence": {
+            "type": "integer",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Confidence",
+            "description": "Confidence percentage (0-100)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "column",
+          "confidence"
+        ],
+        "title": "ColumnSuggestion",
+        "description": "A single column suggestion with confidence score"
+      },
+      "CompareRequest": {
+        "properties": {
+          "cohort_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Cohort Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cohort_ids"
+        ],
+        "title": "CompareRequest"
+      },
+      "CompareResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "CompareResponse"
+      },
+      "CriteriaCategory": {
+        "type": "string",
+        "enum": [
+          "Demographics",
+          "Clinical/Lab Values",
+          "Treatment History",
+          "Safety/Exclusions",
+          "Study-Specific",
+          "Administrative"
+        ],
+        "title": "CriteriaCategory",
+        "description": "Category of criteria for organizing filters"
+      },
+      "CriteriaFormula": {
+        "properties": {
+          "sentence": {
+            "type": "string",
+            "title": "Sentence",
+            "description": "Original sentence/criterion text (exact user wording)"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CriteriaType",
+            "description": "Type: inclusion or exclusion"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CriteriaCategory",
+            "description": "Category of this criteria for organizing filters"
+          },
+          "formula": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FormulaGroup"
+              },
+              {
+                "$ref": "#/components/schemas/FormulaRule"
+              }
+            ],
+            "title": "Formula",
+            "description": "The filter formula for this sentence"
+          },
+          "column_suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/FieldColumnSuggestions"
+            },
+            "type": "array",
+            "title": "Column Suggestions",
+            "description": "Column suggestions for each field used in the formula"
+          },
+          "unmapped_concepts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unmapped Concepts",
+            "description": "Concepts in this sentence that could not be mapped to available columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sentence",
+          "type",
+          "category",
+          "formula"
+        ],
+        "title": "CriteriaFormula",
+        "description": "A single sentence/criterion with its formula and column mappings"
+      },
+      "CriteriaType": {
+        "type": "string",
+        "enum": [
+          "inclusion",
+          "exclusion"
+        ],
+        "title": "CriteriaType",
+        "description": "Type of criteria - inclusion or exclusion"
+      },
+      "CriterionColumnMapping": {
+        "properties": {
+          "criterion": {
+            "type": "string",
+            "title": "Criterion",
+            "description": "The specific criterion text"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns",
+            "description": "Column names required for this criterion"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Type of criterion: 'inclusion' or 'exclusion'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "criterion",
+          "columns",
+          "type"
+        ],
+        "title": "CriterionColumnMapping",
+        "description": "Mapping of a criterion to its required columns"
+      },
+      "DeleteResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "DeleteResponse"
+      },
+      "FieldColumnSuggestions": {
+        "properties": {
+          "field_in_formula": {
+            "type": "string",
+            "title": "Field In Formula",
+            "description": "The field name used in the formula"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnSuggestion"
+            },
+            "type": "array",
+            "title": "Suggestions",
+            "description": "Top 3 column suggestions with confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field_in_formula",
+          "suggestions"
+        ],
+        "title": "FieldColumnSuggestions",
+        "description": "Column suggestions for a field used in a formula"
+      },
+      "FilterGroup-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "logic": {
+            "$ref": "#/components/schemas/LogicType"
+          },
+          "negate": {
+            "type": "boolean",
+            "title": "Negate",
+            "default": false
+          },
+          "rules": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FilterRule"
+                },
+                {
+                  "$ref": "#/components/schemas/FilterGroup-Input"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Rules"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "logic",
+          "rules"
+        ],
+        "title": "FilterGroup",
+        "description": "Group of filter rules with logical operator"
+      },
+      "FilterGroup-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "logic": {
+            "$ref": "#/components/schemas/LogicType"
+          },
+          "negate": {
+            "type": "boolean",
+            "title": "Negate",
+            "default": false
+          },
+          "rules": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FilterRule"
+                },
+                {
+                  "$ref": "#/components/schemas/FilterGroup-Output"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Rules"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "logic",
+          "rules"
+        ],
+        "title": "FilterGroup",
+        "description": "Group of filter rules with logical operator"
+      },
+      "FilterRule": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "operator": {
+            "$ref": "#/components/schemas/OperatorType"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "value2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value2"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "field",
+          "operator"
+        ],
+        "title": "FilterRule",
+        "description": "Single filter condition"
+      },
+      "FormulaGroup": {
+        "properties": {
+          "logic": {
+            "type": "string",
+            "title": "Logic",
+            "description": "Logic operator: AND or OR",
+            "default": "AND"
+          },
+          "negate": {
+            "type": "boolean",
+            "title": "Negate",
+            "description": "Whether to negate the group result",
+            "default": false
+          },
+          "rules": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FormulaRule"
+                },
+                {
+                  "$ref": "#/components/schemas/FormulaGroup"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Rules",
+            "description": "List of rules or nested groups"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rules"
+        ],
+        "title": "FormulaGroup",
+        "description": "A group of rules with logic operator"
+      },
+      "FormulaRule": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field",
+            "description": "Column/field name"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator",
+            "description": "Operator: equals, not_equals, gte, lte, between, contains, etc."
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Primary value for comparison"
+          },
+          "value2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value2",
+            "description": "Secondary value (for 'between' operator)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "operator"
+        ],
+        "title": "FormulaRule",
+        "description": "A single rule within a formula"
+      },
+      "GenerateColumnDescriptionsData": {
+        "properties": {
+          "descriptions": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnDescription"
+            },
+            "type": "array",
+            "title": "Descriptions",
+            "description": "List of column descriptions"
+          },
+          "total_columns": {
+            "type": "integer",
+            "title": "Total Columns",
+            "description": "Total number of columns processed"
+          },
+          "master_data_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Master Data Id",
+            "description": "Master data ID if used"
+          },
+          "processing_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processing Metadata",
+            "description": "Additional metadata about the processing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "descriptions",
+          "total_columns"
+        ],
+        "title": "GenerateColumnDescriptionsData",
+        "description": "Data payload for column descriptions response"
+      },
+      "GenerateColumnDescriptionsRequest": {
+        "properties": {
+          "master_data_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Master Data Id",
+            "description": "Master data ID to get columns automatically"
+          },
+          "enterprise_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enterprise Id",
+            "description": "Enterprise ID for access validation (required if master_data_id is provided)"
+          },
+          "columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ColumnMetadata"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Columns",
+            "description": "List of columns with optional metadata"
+          },
+          "column_names": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column Names",
+            "description": "Simple list of column names (alternative to columns with metadata)"
+          }
+        },
+        "type": "object",
+        "title": "GenerateColumnDescriptionsRequest",
+        "description": "Request schema for generating clinical descriptions for columns",
+        "examples": [
+          {
+            "column_names": [
+              "age",
+              "bmi",
+              "easi_score",
+              "hba1c",
+              "pregnant_or_breastfeeding",
+              "prior_biologic_treatment",
+              "patient_id"
+            ]
+          },
+          {
+            "columns": [
+              {
+                "data_type": "number",
+                "name": "bmi",
+                "sample_values": [22.5, 28.1, 31.2, 19.8, 25.4]
+              },
+              {
+                "data_type": "number",
+                "name": "easi_score",
+                "sample_values": [16, 24, 8, 32, 45]
+              },
+              {
+                "data_type": "categorical",
+                "name": "gender",
+                "sample_values": [
+                  "Male",
+                  "Female",
+                  "Male",
+                  "Female"
+                ]
+              },
+              {
+                "data_type": "categorical",
+                "name": "smoking_status",
+                "sample_values": [
+                  "Never",
+                  "Former",
+                  "Current",
+                  "Never"
+                ]
+              }
+            ]
+          },
+          {
+            "enterprise_id": "enterprise-123",
+            "master_data_id": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        ]
+      },
+      "GenerateColumnDescriptionsResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GenerateColumnDescriptionsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "GenerateColumnDescriptionsResponse",
+        "description": "Response schema for column descriptions endpoint"
+      },
+      "GenerateFilterRequest": {
+        "properties": {
+          "master_data_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Master Data Id",
+            "description": "Master data ID to get available columns"
+          },
+          "enterprise_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enterprise Id",
+            "description": "Enterprise ID for access validation (required if master_data_id is provided)"
+          },
+          "columns": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Columns",
+            "description": "Column names and types directly (e.g., {'age': 'number', 'gender': 'categorical'})"
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria",
+            "description": "Natural language inclusion criteria text"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria",
+            "description": "Natural language exclusion criteria text"
+          }
+        },
+        "type": "object",
+        "title": "GenerateFilterRequest",
+        "description": "Request schema for generating filter from criteria"
+      },
+      "GenerateFilterResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "GenerateFilterResponse",
+        "description": "Response schema for generated filter"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LogicType": {
+        "type": "string",
+        "enum": [
+          "AND",
+          "OR"
+        ],
+        "title": "LogicType"
+      },
+      "MasterDataPreviewData": {
+        "properties": {
+          "master_data_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Master Data Id"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "columns": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Columns"
+          },
+          "patient_id_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patient Id Column"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "required": [
+          "master_data_id",
+          "rows",
+          "total_rows",
+          "columns"
+        ],
+        "title": "MasterDataPreviewData",
+        "description": "Data payload for master data preview response"
+      },
+      "MasterDataPreviewResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MasterDataPreviewData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MasterDataPreviewResponse",
+        "description": "Response schema for master data preview endpoint"
+      },
+      "MasterDataUploadResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MasterDataUploadResponse"
+      },
+      "MergeResultResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MergeResultResponse",
+        "description": "Response for merge operation"
+      },
+      "OperatorType": {
+        "type": "string",
+        "enum": [
+          "equals",
+          "not_equals",
+          "contains",
+          "gt",
+          "gte",
+          "lt",
+          "lte",
+          "between",
+          "is_empty",
+          "is_not_empty",
+          "in_cohort",
+          "not_in_cohort"
+        ],
+        "title": "OperatorType"
+      },
+      "PaginatedResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "PaginatedResponse"
+      },
+      "SavedFilter": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/FilterGroup-Output"
+          },
+          "is_template": {
+            "type": "boolean",
+            "title": "Is Template"
+          },
+          "usage_count": {
+            "type": "integer",
+            "title": "Usage Count"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "filter",
+          "is_template",
+          "usage_count",
+          "enterprise_id",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SavedFilter"
+      },
+      "SavedFilterCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/FilterGroup-Input"
+          },
+          "is_template": {
+            "type": "boolean",
+            "title": "Is Template",
+            "default": false
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "filter",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "SavedFilterCreateRequest"
+      },
+      "SavedFilterResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SavedFilter"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SavedFilterResponse"
+      },
+      "SavedFilterUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterGroup-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_template": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Template"
+          }
+        },
+        "type": "object",
+        "title": "SavedFilterUpdateRequest"
+      },
+      "Study": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StudyStatus"
+          },
+          "study_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Metadata"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "status",
+          "enterprise_id",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "Study",
+        "description": "Full study details"
+      },
+      "StudyCohortPatientIdsData": {
+        "properties": {
+          "study_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Study Id"
+          },
+          "cohorts": {
+            "items": {
+              "$ref": "#/components/schemas/CohortPatientIds"
+            },
+            "type": "array",
+            "title": "Cohorts"
+          },
+          "total_unique_patients": {
+            "type": "integer",
+            "title": "Total Unique Patients"
+          }
+        },
+        "type": "object",
+        "required": [
+          "study_id",
+          "cohorts",
+          "total_unique_patients"
+        ],
+        "title": "StudyCohortPatientIdsData",
+        "description": "Response data for study cohort patient IDs"
+      },
+      "StudyCohortPatientIdsResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StudyCohortPatientIdsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "StudyCohortPatientIdsResponse",
+        "description": "Response for GET /studies/{study_id}/cohort-patient-ids"
+      },
+      "StudyCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StudyStatus",
+            "default": "draft"
+          },
+          "study_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Metadata"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "enterprise_id",
+          "user_id"
+        ],
+        "title": "StudyCreateRequest",
+        "description": "Request schema for creating a new study"
+      },
+      "StudyListResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "StudyListResponse",
+        "description": "Paginated study list response"
+      },
+      "StudyResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Study"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "StudyResponse",
+        "description": "Single study response"
+      },
+      "StudyStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "active",
+          "completed",
+          "archived"
+        ],
+        "title": "StudyStatus",
+        "description": "Workflow status for studies"
+      },
+      "StudyUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StudyStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "study_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Metadata"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "StudyUpdateRequest",
+        "description": "Request schema for updating a study"
+      },
+      "StudyWithCounts": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StudyStatus"
+          },
+          "study_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Metadata"
+          },
+          "enterprise_id": {
+            "type": "string",
+            "title": "Enterprise Id"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "master_data_count": {
+            "type": "integer",
+            "title": "Master Data Count",
+            "default": 0
+          },
+          "cohort_count": {
+            "type": "integer",
+            "title": "Cohort Count",
+            "default": 0
+          },
+          "total_patients": {
+            "type": "integer",
+            "title": "Total Patients",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "status",
+          "enterprise_id",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StudyWithCounts",
+        "description": "Study with aggregated counts"
+      },
+      "StudyWithCountsResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StudyWithCounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "StudyWithCountsResponse",
+        "description": "Single study response with counts"
+      },
+      "UnifiedCriteriaRequest": {
+        "properties": {
+          "columns": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Columns",
+            "description": "Column metadata - enhanced format: {col: {type, description, sample_values, ...}} or simple: {col: type}"
+          },
+          "inclusion_criteria": {
+            "type": "string",
+            "title": "Inclusion Criteria",
+            "description": "Natural language inclusion criteria"
+          },
+          "exclusion_criteria": {
+            "type": "string",
+            "title": "Exclusion Criteria",
+            "description": "Natural language exclusion criteria"
+          }
+        },
+        "type": "object",
+        "required": [
+          "columns",
+          "inclusion_criteria",
+          "exclusion_criteria"
+        ],
+        "title": "UnifiedCriteriaRequest",
+        "description": "Request for unified criteria processing"
+      },
+      "UnifiedCriteriaResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UnifiedCriteriaResponseData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "UnifiedCriteriaResponse",
+        "description": "Response for unified criteria processing endpoint"
+      },
+      "UnifiedCriteriaResponseData": {
+        "properties": {
+          "criteria_formulas": {
+            "items": {
+              "$ref": "#/components/schemas/CriteriaFormula"
+            },
+            "type": "array",
+            "title": "Criteria Formulas",
+            "description": "Sentence-by-sentence formulas with suggestions"
+          },
+          "total_sentences": {
+            "type": "integer",
+            "title": "Total Sentences",
+            "description": "Total number of sentences processed"
+          },
+          "mapped_sentences": {
+            "type": "integer",
+            "title": "Mapped Sentences",
+            "description": "Number of sentences successfully mapped"
+          },
+          "unmapped_sentences": {
+            "type": "integer",
+            "title": "Unmapped Sentences",
+            "description": "Number of sentences with unmapped concepts"
+          },
+          "columns_used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns Used",
+            "description": "All unique columns referenced in formulas"
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria"
+          }
+        },
+        "type": "object",
+        "required": [
+          "criteria_formulas",
+          "total_sentences",
+          "mapped_sentences",
+          "unmapped_sentences"
+        ],
+        "title": "UnifiedCriteriaResponseData",
+        "description": "Response data for unified criteria processing"
+      },
+      "ValidateSchemaData": {
+        "properties": {
+          "is_valid": {
+            "type": "boolean",
+            "title": "Is Valid",
+            "description": "Whether the dataset has all required columns"
+          },
+          "missing_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Columns",
+            "description": "Column names that are required but missing"
+          },
+          "required_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Required Columns",
+            "description": "All column names required by the criteria"
+          },
+          "available_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Columns",
+            "description": "Column names provided in the request"
+          },
+          "criteria_mapping": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionColumnMapping"
+            },
+            "type": "array",
+            "title": "Criteria Mapping",
+            "description": "Mapping of each criterion to its required columns"
+          },
+          "suggested_mappings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Suggested Mappings",
+            "description": "AI-suggested mappings from missing columns to available columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_valid"
+        ],
+        "title": "ValidateSchemaData",
+        "description": "Data payload for schema validation response"
+      },
+      "ValidateSchemaRequest": {
+        "properties": {
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns",
+            "description": "List of column names from the dataset"
+          },
+          "inclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Criteria",
+            "description": "Natural language inclusion criteria text"
+          },
+          "exclusion_criteria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Criteria",
+            "description": "Natural language exclusion criteria text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "columns"
+        ],
+        "title": "ValidateSchemaRequest",
+        "description": "Request schema for validating dataset columns against criteria"
+      },
+      "ValidateSchemaResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ValidateSchemaData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ValidateSchemaResponse",
+        "description": "Response schema for schema validation endpoint"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

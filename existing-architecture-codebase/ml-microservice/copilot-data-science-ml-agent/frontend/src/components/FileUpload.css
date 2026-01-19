@@ -1,0 +1,38 @@
+.file-upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-button {
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #667eea;
+  color: #667eea;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.upload-button:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.file-hint {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .file-upload {
+    width: 100%;
+  }
+
+  .upload-button {
+    flex: 1;
+  }
+}

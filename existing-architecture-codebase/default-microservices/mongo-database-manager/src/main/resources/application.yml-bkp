@@ -1,0 +1,77 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: mongo-database-manager
+  
+  # Default MongoDB Configuration (for fallback)
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: default_db
+      connection-pool:
+        max-size: 20
+        min-size: 5
+      connection-timeout: 10000
+  
+  # Cache Configuration
+  cache:
+    type: simple # Change to redis when Redis is available
+    cache-names: mongo-datasource-metadata
+  
+  # Security Configuration
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+
+# Feign Client Configuration
+feign:
+  clients:
+    enterprise-manager:
+      name: ENTERPRISE-MANAGER
+      path: /internal/enterprise-manager
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    ai.kolate.mongo_database_manager: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.security: INFO
+    com.mongodb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# MongoDB Datasource Configuration
+mongodb:
+  datasource:
+    default:
+      connection-string: mongodb://localhost:27017
+      database: default_db
+      max-pool-size: 20
+      min-pool-size: 5
+      connection-timeout-ms: 10000

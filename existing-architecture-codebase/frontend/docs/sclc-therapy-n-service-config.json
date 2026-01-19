@@ -1,0 +1,680 @@
+{
+  "models": [
+    {
+      "model_key": "objective_response",
+      "display_name": "Objective Response Predictor",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/objective_response_n.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "response_mapping": {
+        "0": "Complete Response",
+        "1": "Partial Response",
+        "2": "Stable Disease",
+        "3": "Progressive Disease"
+      },
+      "is_primary": true,
+      "display_order": 1
+    },
+    {
+      "model_key": "total_ae",
+      "display_name": "Total Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/total_ae_n.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 2
+    },
+    {
+      "model_key": "total_sae",
+      "display_name": "Total Serious Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/total_sae_n.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 3
+    },
+    {
+      "model_key": "blood_lymphatic_disorders",
+      "display_name": "Blood and Lymphatic System Disorders Predictor",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/xgb_Blood_and_lymphatic_system_disorders.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 4
+    },
+    {
+      "model_key": "endocrine_disorders",
+      "display_name": "Endocrine Disorders Predictor",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/xgb_Endocrine_disorders.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 5
+    },
+    {
+      "model_key": "gastrointestinal_disorders",
+      "display_name": "Gastrointestinal Disorders Predictor",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/xgb_Gastrointestinal_disorders.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 6
+    },
+    {
+      "model_key": "general_disorders",
+      "display_name": "General Disorders Predictor",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/sclc-therapy-n-service/models/xgb_General_disorders.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 7
+    }
+  ],
+  "fields": [
+    {
+      "name": "ALTPATID",
+      "type": "string",
+      "description": "Alternative patient identifier - unique patient ID",
+      "category": "continuous",
+      "validation": {
+        "required": false
+      },
+      "ui_config": {
+        "group": "Identification",
+        "display_order": 1
+      }
+    },
+    {
+      "name": "DERIVED_RACE",
+      "type": "categorical",
+      "description": "Patient race classification derived from source data",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["W"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 2
+      }
+    },
+    {
+      "name": "SEX",
+      "type": "categorical",
+      "description": "Patient sex/gender",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["F", "M"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 3
+      }
+    },
+    {
+      "name": "HISPANIC",
+      "type": "categorical",
+      "description": "Hispanic ethnicity indicator",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["N", "Y"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 4
+      }
+    },
+    {
+      "name": "age_cat",
+      "type": "number",
+      "description": "Patient age in years",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 18,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 5
+      }
+    },
+    {
+      "name": "NUMPT",
+      "type": "number",
+      "description": "Number of prior therapies received",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Treatment History",
+        "display_order": 6
+      }
+    },
+    {
+      "name": "STRAT_TRMT",
+      "type": "categorical",
+      "description": "Stratification by treatment history",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["One", "Two or more"]
+      },
+      "ui_config": {
+        "group": "Treatment History",
+        "display_order": 7
+      }
+    },
+    {
+      "name": "CIGHIST1",
+      "type": "categorical",
+      "description": "Cigarette smoking history",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["CURRENT", "FORMER"]
+      },
+      "ui_config": {
+        "group": "Lifestyle",
+        "display_order": 8
+      }
+    },
+    {
+      "name": "P6WTLOSS",
+      "type": "categorical",
+      "description": "Weight loss in past 6 months",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["<5"]
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 9
+      }
+    },
+    {
+      "name": "ZUBRODPS",
+      "type": "number",
+      "description": "Zubrod/ECOG performance status score",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 4
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 10
+      }
+    },
+    {
+      "name": "CURBRNMET",
+      "type": "categorical",
+      "description": "Current brain metastases indicator",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["N", "Y"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 11
+      }
+    },
+    {
+      "name": "LVRMETS",
+      "type": "categorical",
+      "description": "Liver metastases indicator",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["N", "Y"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 12
+      }
+    },
+    {
+      "name": "LOCPALRT",
+      "type": "categorical",
+      "description": "Local palliative radiotherapy received",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["N", "Y"]
+      },
+      "ui_config": {
+        "group": "Treatment History",
+        "display_order": 13
+      }
+    },
+    {
+      "name": "CURATRT",
+      "type": "categorical",
+      "description": "Curative treatment received",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["N"]
+      },
+      "ui_config": {
+        "group": "Treatment History",
+        "display_order": 14
+      }
+    },
+    {
+      "name": "ARMNAME",
+      "type": "categorical",
+      "description": "Treatment arm name",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Nivolumab"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 15
+      }
+    },
+    {
+      "name": "CLINTOX",
+      "type": "categorical",
+      "description": "Clinical toxicity indicator",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Y"]
+      },
+      "ui_config": {
+        "group": "Adverse Events",
+        "display_order": 16
+      }
+    },
+    {
+      "name": "tmb_num",
+      "type": "number",
+      "description": "Tumor mutation burden numerical value",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Biomarkers",
+        "display_order": 17
+      }
+    },
+    {
+      "name": "PDL1_num",
+      "type": "number",
+      "description": "PD-L1 expression numerical value (%)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Biomarkers",
+        "display_order": 18
+      }
+    },
+    {
+      "name": "num_cycles",
+      "type": "number",
+      "description": "Number of treatment cycles received",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 19
+      }
+    },
+    {
+      "name": "tte_osrv2",
+      "type": "number",
+      "description": "Time to event for overall survival (months)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 20
+      }
+    },
+    {
+      "name": "ind_osrv",
+      "type": "number",
+      "description": "Overall survival event indicator (0=censored, 1=event)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 1
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 21
+      }
+    },
+    {
+      "name": "tte_pfsrv2",
+      "type": "number",
+      "description": "Time to event for progression-free survival (months)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 22
+      }
+    },
+    {
+      "name": "ind_pfsrv",
+      "type": "number",
+      "description": "Progression-free survival event indicator (0=censored, 1=event)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 1
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 23
+      }
+    },
+    {
+      "name": "RESP4",
+      "type": "categorical",
+      "description": "Best overall response achieved",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["CR", "PR", "STA", "INC"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 24
+      }
+    },
+    {
+      "name": "resptim",
+      "type": "number",
+      "description": "Time to response (months)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 50
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 25
+      }
+    },
+    {
+      "name": "tte_resprv2",
+      "type": "number",
+      "description": "Time to event for response survival (months)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 26
+      }
+    },
+    {
+      "name": "timetooff",
+      "type": "number",
+      "description": "Time to treatment discontinuation (months)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 27
+      }
+    },
+    {
+      "name": "OFFTX",
+      "type": "number",
+      "description": "Off treatment indicator (1=yes)",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 1
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 28
+      }
+    },
+    {
+      "name": "OFFREASON",
+      "type": "categorical",
+      "description": "Reason for treatment discontinuation",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["PROG", "TSC"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 29
+      }
+    },
+    {
+      "name": "pro_diarrhea_max",
+      "type": "number",
+      "description": "Maximum diarrhea PRO score reported",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 30
+      }
+    },
+    {
+      "name": "pro_diarrhea_max_adjust",
+      "type": "number",
+      "description": "Adjusted maximum diarrhea PRO score",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 31
+      }
+    },
+    {
+      "name": "pro_fatigueS_max",
+      "type": "number",
+      "description": "Maximum fatigue severity PRO score reported",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 32
+      }
+    },
+    {
+      "name": "pro_fatigueS_max_adjust",
+      "type": "number",
+      "description": "Adjusted maximum fatigue severity PRO score",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 33
+      }
+    },
+    {
+      "name": "pro_fatigueI_max",
+      "type": "number",
+      "description": "Maximum fatigue interference PRO score reported",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 34
+      }
+    },
+    {
+      "name": "pro_fatigueI_max_adjust",
+      "type": "number",
+      "description": "Adjusted maximum fatigue interference PRO score",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 35
+      }
+    },
+    {
+      "name": "pro_itch_max",
+      "type": "number",
+      "description": "Maximum itching PRO score reported",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 36
+      }
+    },
+    {
+      "name": "pro_itch_max_adjust",
+      "type": "number",
+      "description": "Adjusted maximum itching PRO score",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Patient Reported Outcomes",
+        "display_order": 37
+      }
+    }
+  ],
+  "preprocessing": {
+    "requires_one_hot": true,
+    "missing_value_strategy": "zero_fill"
+  },
+  "service_config": {
+    "cache_ttl_seconds": 300,
+    "batch_prediction_max_rows": 1000,
+    "enable_execution_tracking": true
+  }
+}

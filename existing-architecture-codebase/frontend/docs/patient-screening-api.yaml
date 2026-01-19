@@ -1,0 +1,1481 @@
+openapi: 3.1.0
+info:
+  title: Patient Screening Cohort API
+  description: |
+    API for managing patient screening cohorts with S3 storage for master data.
+
+    ## Architecture Overview
+    - **Master Data**: Stored in S3 bucket (original uploaded CSV/JSON/Excel)
+    - **Cohort Metadata**: Stored in PostgreSQL (name, description, filters, S3 reference)
+    - **Filtering**: Applied client-side on UI after fetching master data from S3
+    - **Screened Data**: Generated on-demand by applying filters to master data
+
+    ## Data Flow
+    1. User uploads file via `POST /cohorts/upload-master-data`
+    2. Backend stores file in S3, returns `master_data_id`
+    3. User creates cohort via `POST /cohorts` with filter configuration
+    4. Frontend fetches master data from S3 and applies filters client-side
+
+    ## Request Context
+    The following IDs are passed in the request body when needed:
+    - `enterprise_id`: UUID of the user's enterprise (required for data isolation)
+    - `user_id`: UUID of the authenticated user
+    - `user_name`: Display name of the user (for audit logs)
+    - `project_id`: UUID of the current project context (optional)
+
+    These are used for data isolation, audit trails, and multi-tenancy.
+    Authentication is handled by the API Gateway.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@kolateai.com
+
+servers:
+  - url: /api/patient-screening/v1
+    description: Patient Screening API
+
+tags:
+  - name: Cohorts
+    description: Cohort CRUD operations
+  - name: Filters
+    description: Saved filter CRUD operations (reusable filters)
+  - name: Data
+    description: Master data upload/download operations
+  - name: Comparison
+    description: Cohort comparison operations
+  - name: Analytics
+    description: Cohort analytics and activity
+
+paths:
+  # ============ FILTERS ENDPOINTS ============
+  /filters:
+    get:
+      tags: [Filters]
+      summary: List all saved filters
+      description: |
+        Retrieves all saved filters for the enterprise.
+        Includes both user-created filters and shared templates.
+      operationId: listFilters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: include_templates
+          in: query
+          description: Include shared template filters
+          schema:
+            type: boolean
+            default: true
+        - name: search
+          in: query
+          description: Search by name or description
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of saved filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Filters]
+      summary: Create a saved filter
+      description: |
+        Saves a filter configuration for reuse across multiple cohorts.
+        The filter can optionally be marked as a template for sharing.
+      operationId: createFilter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedFilterCreateRequest'
+      responses:
+        '201':
+          description: Filter saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedFilterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /filters/{filter_id}:
+    get:
+      tags: [Filters]
+      summary: Get saved filter by ID
+      operationId: getFilter
+      parameters:
+        - $ref: '#/components/parameters/FilterId'
+      responses:
+        '200':
+          description: Filter details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedFilterResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Filters]
+      summary: Update saved filter
+      description: |
+        Updates a saved filter. If the filter is used by cohorts,
+        those cohorts will use the updated filter configuration.
+      operationId: updateFilter
+      parameters:
+        - $ref: '#/components/parameters/FilterId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedFilterUpdateRequest'
+      responses:
+        '200':
+          description: Filter updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedFilterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Filters]
+      summary: Delete saved filter
+      description: |
+        Deletes a saved filter. Cohorts using this filter will
+        have their filter_id set to NULL (filter config is preserved inline).
+      operationId: deleteFilter
+      parameters:
+        - $ref: '#/components/parameters/FilterId'
+      responses:
+        '200':
+          description: Filter deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /filters/{filter_id}/cohorts:
+    get:
+      tags: [Filters]
+      summary: List cohorts using this filter
+      description: Returns all cohorts that reference this saved filter
+      operationId: getFilterCohorts
+      parameters:
+        - $ref: '#/components/parameters/FilterId'
+      responses:
+        '200':
+          description: List of cohorts using this filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ============ COHORTS ENDPOINTS ============
+  /cohorts:
+    get:
+      tags: [Cohorts]
+      summary: List all cohorts
+      description: |
+        Retrieves a paginated list of cohorts for the current enterprise.
+        Results can be sorted by various fields and filtered.
+      operationId: listCohorts
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          schema:
+            type: string
+            enum: [created_at, updated_at, name, patient_count]
+            default: created_at
+        - name: sort_direction
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: search
+          in: query
+          description: Search term to filter by name or description
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of cohorts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Cohorts]
+      summary: Create a new cohort
+      description: |
+        Creates a new cohort with the specified configuration.
+        The `master_data_id` must reference a previously uploaded file.
+      operationId: createCohort
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CohortCreateRequest'
+      responses:
+        '201':
+          description: Cohort created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Master data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/{cohort_id}:
+    get:
+      tags: [Cohorts]
+      summary: Get cohort by ID
+      description: Retrieves detailed information about a specific cohort
+      operationId: getCohort
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+      responses:
+        '200':
+          description: Cohort details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Cohorts]
+      summary: Update cohort
+      description: |
+        Updates an existing cohort. Only the fields provided will be updated.
+        When updating filters, the `filtered_patient_ids` should be recalculated
+        on the frontend and sent with the request.
+      operationId: updateCohort
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CohortUpdateRequest'
+      responses:
+        '200':
+          description: Cohort updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Cohorts]
+      summary: Delete cohort
+      description: |
+        Deletes a cohort. This does NOT delete the master data from S3,
+        as it may be referenced by other cohorts.
+      operationId: deleteCohort
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+      responses:
+        '200':
+          description: Cohort deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/upload-master-data:
+    post:
+      tags: [Data]
+      summary: Upload master data to S3
+      description: |
+        Uploads a master data file to S3 storage. The file is parsed to extract:
+        - Column names and inferred types
+        - Row count
+        - File metadata
+
+        Supported formats: CSV, JSON, XLSX (Excel)
+
+        Returns a `master_data_id` that should be used when creating cohorts.
+      operationId: uploadMasterData
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV, JSON, or Excel file containing patient data
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MasterDataUploadResponse'
+        '400':
+          description: Invalid file format or parsing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/{cohort_id}/master-data:
+    get:
+      tags: [Data]
+      summary: Get presigned URL for master data
+      description: |
+        Returns a presigned S3 URL to download the master data file.
+        The URL is valid for a limited time (default: 15 minutes).
+
+        The frontend should use this URL to fetch the raw data and apply
+        filters client-side.
+      operationId: getMasterDataUrl
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+        - name: expires_in
+          in: query
+          description: URL expiration time in seconds (default 900, max 3600)
+          schema:
+            type: integer
+            default: 900
+            minimum: 60
+            maximum: 3600
+      responses:
+        '200':
+          description: Presigned URL for download
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresignedUrlResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/{cohort_id}/master-data/download:
+    get:
+      tags: [Data]
+      summary: Download master data directly
+      description: |
+        Streams the master data file directly from S3.
+        Optionally converts to a different format.
+      operationId: downloadMasterData
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+        - name: format
+          in: query
+          required: false
+          description: Output format (converts if different from stored format)
+          schema:
+            type: string
+            enum: [csv, xlsx, json]
+            default: csv
+      responses:
+        '200':
+          description: Master data file
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/{cohort_id}/screened-data/download:
+    post:
+      tags: [Data]
+      summary: Download screened (filtered) data
+      description: |
+        Generates and downloads filtered patient data based on the cohort's filter.
+        The filter is applied server-side using the cached `filtered_patient_ids`.
+      operationId: downloadScreenedData
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+        - name: format
+          in: query
+          required: false
+          description: Output format
+          schema:
+            type: string
+            enum: [csv, xlsx, json]
+            default: csv
+      responses:
+        '200':
+          description: Screened data file
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/compare:
+    post:
+      tags: [Comparison]
+      summary: Compare multiple cohorts
+      description: |
+        Compares patient overlap between 2-5 cohorts.
+        Returns statistics about each cohort and pairwise overlap analysis.
+      operationId: compareCohorts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CohortCompareRequest'
+      responses:
+        '200':
+          description: Comparison results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortCompareResponse'
+        '400':
+          description: Invalid request (e.g., less than 2 cohorts)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: One or more cohorts not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cohorts/{cohort_id}/activity:
+    get:
+      tags: [Analytics]
+      summary: Get cohort activity log
+      description: |
+        Retrieves the activity/audit log for a cohort including:
+        - Creation events
+        - Filter modifications
+        - Export activities
+        - Comparison events
+      operationId: getCohortActivity
+      parameters:
+        - $ref: '#/components/parameters/CohortId'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Activity log
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortActivityResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /analytics:
+    get:
+      tags: [Analytics]
+      summary: Get aggregated analytics
+      description: |
+        Returns aggregated analytics for all cohorts in the enterprise:
+        - Total cohorts count
+        - Total patients screened
+        - Average match rate
+        - Top performing cohorts
+      operationId: getAnalytics
+      parameters:
+        - name: period
+          in: query
+          description: Time period for analytics
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, all]
+            default: 30d
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  parameters:
+    CohortId:
+      name: cohort_id
+      in: path
+      required: true
+      description: Unique cohort identifier (UUID)
+      schema:
+        type: string
+        format: uuid
+        example: "123e4567-e89b-12d3-a456-426614174000"
+    FilterId:
+      name: filter_id
+      in: path
+      required: true
+      description: Unique saved filter identifier (UUID)
+      schema:
+        type: string
+        format: uuid
+        example: "f0000000-0000-0000-0000-000000000001"
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ============ ENUMS ============
+    ColumnType:
+      type: string
+      enum: [string, number, categorical]
+      description: |
+        Data type of a column:
+        - `string`: Text values
+        - `number`: Numeric values (integers or decimals)
+        - `categorical`: Discrete set of values (like enums)
+
+    OperatorType:
+      type: string
+      enum:
+        - equals
+        - not_equals
+        - contains
+        - gt
+        - gte
+        - lt
+        - lte
+        - between
+        - is_empty
+        - is_not_empty
+        - in_cohort
+        - not_in_cohort
+      description: |
+        Filter operator type:
+        - `equals`: Exact match (=)
+        - `not_equals`: Not equal (!=)
+        - `contains`: String contains substring (~)
+        - `gt`: Greater than (>)
+        - `gte`: Greater than or equal (>=)
+        - `lt`: Less than (<)
+        - `lte`: Less than or equal (<=)
+        - `between`: Value between two numbers (inclusive)
+        - `is_empty`: Field is null or empty
+        - `is_not_empty`: Field has a value
+        - `in_cohort`: Patient exists in another cohort
+        - `not_in_cohort`: Patient not in another cohort
+
+    LogicType:
+      type: string
+      enum: [AND, OR]
+      description: Logical operator for combining rules within a group
+
+    # ============ FILTER STRUCTURES ============
+    FilterRule:
+      type: object
+      description: A single filter condition applied to a specific field
+      required:
+        - id
+        - field
+        - operator
+        - value
+      properties:
+        id:
+          type: string
+          description: Unique rule identifier (UUID or generated)
+          example: "rule-1"
+        field:
+          type: string
+          description: Column name to filter on
+          example: "age"
+        operator:
+          $ref: '#/components/schemas/OperatorType'
+        value:
+          oneOf:
+            - type: string
+            - type: number
+          description: Value to compare against
+          example: 18
+        value2:
+          oneOf:
+            - type: string
+            - type: number
+          description: Second value for 'between' operator
+          example: 65
+
+    FilterGroup:
+      type: object
+      description: |
+        A group of filter rules combined with a logical operator.
+        Groups can be nested for complex filter logic.
+      required:
+        - id
+        - logic
+        - rules
+      properties:
+        id:
+          type: string
+          description: Unique group identifier
+          example: "group-1"
+        name:
+          type: string
+          description: Optional human-readable group name
+          example: "Age Requirements"
+        logic:
+          $ref: '#/components/schemas/LogicType'
+        negate:
+          type: boolean
+          default: false
+          description: If true, negates the entire group result (NOT)
+        rules:
+          type: array
+          description: Array of rules or nested groups
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/FilterRule'
+              - $ref: '#/components/schemas/FilterGroup'
+      example:
+        id: "group-1"
+        logic: "AND"
+        negate: false
+        rules:
+          - id: "rule-1"
+            field: "age"
+            operator: "gte"
+            value: 18
+          - id: "group-2"
+            logic: "OR"
+            rules:
+              - id: "rule-2"
+                field: "status"
+                operator: "equals"
+                value: "active"
+              - id: "rule-3"
+                field: "status"
+                operator: "equals"
+                value: "pending"
+
+    # ============ COLUMN SCHEMA ============
+    ColumnSchema:
+      type: object
+      description: |
+        Mapping of column names to their data types.
+        Used for type-aware filtering and display.
+      additionalProperties:
+        $ref: '#/components/schemas/ColumnType'
+      example:
+        patient_id: string
+        age: number
+        gender: categorical
+        diagnosis: string
+        bmi: number
+
+    # ============ SAVED FILTER SCHEMAS ============
+    SavedFilterBase:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Filter name
+          example: "Phase III Eligibility Filter"
+        description:
+          type: string
+          maxLength: 1000
+          description: Filter description
+          example: "Standard eligibility criteria for Phase III trials"
+
+    SavedFilterCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/SavedFilterBase'
+        - type: object
+          required:
+            - name
+            - filter
+          properties:
+            filter:
+              $ref: '#/components/schemas/FilterGroup'
+            is_template:
+              type: boolean
+              default: false
+              description: Mark as shared template visible to all users in enterprise
+            enterprise_id:
+              type: string
+              format: uuid
+              description: Enterprise UUID for data isolation
+            user_id:
+              type: string
+              format: uuid
+              description: User UUID for audit trail
+            user_name:
+              type: string
+              description: User display name for audit logs
+
+    SavedFilterUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/SavedFilterBase'
+        - type: object
+          properties:
+            filter:
+              $ref: '#/components/schemas/FilterGroup'
+            is_template:
+              type: boolean
+              description: Mark as shared template
+            enterprise_id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            user_name:
+              type: string
+
+    SavedFilter:
+      type: object
+      description: A saved/reusable filter configuration
+      required:
+        - id
+        - name
+        - filter
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique filter identifier
+        name:
+          type: string
+          description: Filter name
+        description:
+          type: string
+          nullable: true
+          description: Filter description
+        filter:
+          $ref: '#/components/schemas/FilterGroup'
+        is_template:
+          type: boolean
+          description: If true, visible to all users in enterprise
+        usage_count:
+          type: integer
+          description: Number of cohorts using this filter
+        enterprise_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SavedFilterResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/SavedFilter'
+
+    FilterListResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - content
+            - total_elements
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/SavedFilter'
+            total_elements:
+              type: integer
+            page:
+              type: integer
+            size:
+              type: integer
+            total_pages:
+              type: integer
+
+    # ============ COHORT SCHEMAS ============
+    CohortBase:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Cohort name
+          example: "Phase III Eligibility"
+        description:
+          type: string
+          maxLength: 1000
+          description: Cohort description
+          example: "Patients meeting Phase III trial eligibility criteria"
+
+    CohortCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/CohortBase'
+        - type: object
+          required:
+            - name
+            - master_data_id
+            - columns
+          properties:
+            master_data_id:
+              type: string
+              format: uuid
+              description: Reference to uploaded master data in S3
+              example: "550e8400-e29b-41d4-a716-446655440000"
+            columns:
+              $ref: '#/components/schemas/ColumnSchema'
+            filter_id:
+              type: string
+              format: uuid
+              description: Reference to a saved filter (use this OR inline filter)
+              example: "f0000000-0000-0000-0000-000000000001"
+            filter:
+              $ref: '#/components/schemas/FilterGroup'
+              description: Inline filter config (use this OR filter_id)
+            save_filter_as:
+              type: string
+              description: If provided, save the inline filter with this name for reuse
+              example: "My Phase III Filter"
+            filtered_patient_ids:
+              type: array
+              items:
+                type: string
+              description: |
+                List of patient IDs that match the filter.
+                Computed on frontend and sent to backend for caching.
+              example: ["P001", "P002", "P003"]
+            patient_count:
+              type: integer
+              description: Number of patients matching filter
+              example: 150
+            enterprise_id:
+              type: string
+              format: uuid
+              description: Enterprise UUID for data isolation
+            user_id:
+              type: string
+              format: uuid
+              description: User UUID for audit trail
+            user_name:
+              type: string
+              description: User display name for audit logs
+            project_id:
+              type: string
+              format: uuid
+              description: Project UUID (optional context)
+
+    CohortUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/CohortBase'
+        - type: object
+          properties:
+            filter:
+              $ref: '#/components/schemas/FilterGroup'
+            filtered_patient_ids:
+              type: array
+              items:
+                type: string
+              description: Updated list of patient IDs after filter change
+            patient_count:
+              type: integer
+              description: Updated patient count
+            enterprise_id:
+              type: string
+              format: uuid
+              description: Enterprise UUID for data isolation
+            user_id:
+              type: string
+              format: uuid
+              description: User UUID for audit trail
+            user_name:
+              type: string
+              description: User display name for audit logs
+            project_id:
+              type: string
+              format: uuid
+              description: Project UUID (optional context)
+
+    Cohort:
+      type: object
+      description: Full cohort object with all metadata
+      required:
+        - id
+        - name
+        - master_data_id
+        - columns
+        - patient_count
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique cohort identifier
+        name:
+          type: string
+          description: Cohort name
+        description:
+          type: string
+          nullable: true
+          description: Cohort description
+        master_data_id:
+          type: string
+          format: uuid
+          description: Reference to S3 master data
+        master_data_url:
+          type: string
+          format: uri
+          description: Presigned URL for master data (optional convenience field)
+        columns:
+          $ref: '#/components/schemas/ColumnSchema'
+        filter_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Reference to saved filter (if using saved filter)
+        filter:
+          $ref: '#/components/schemas/FilterGroup'
+          description: Inline filter config OR resolved filter from filter_id
+        filter_name:
+          type: string
+          nullable: true
+          description: Name of the saved filter (if using filter_id)
+        filtered_patient_ids:
+          type: array
+          items:
+            type: string
+          description: Cached list of filtered patient IDs
+        patient_count:
+          type: integer
+          description: Number of patients matching filter
+        master_patient_count:
+          type: integer
+          description: Total patients in master data
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        created_by:
+          type: string
+          description: User ID who created the cohort
+
+    # ============ MASTER DATA SCHEMAS ============
+    MasterDataUploadResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: File uploaded successfully
+        data:
+          type: object
+          required:
+            - master_data_id
+            - s3_key
+            - file_name
+            - file_size
+            - row_count
+            - columns
+          properties:
+            master_data_id:
+              type: string
+              format: uuid
+              description: Unique ID for the uploaded data
+              example: "550e8400-e29b-41d4-a716-446655440000"
+            s3_key:
+              type: string
+              description: S3 object key
+              example: "master-data/550e8400-e29b-41d4-a716-446655440000/patients.csv"
+            file_name:
+              type: string
+              description: Original file name
+              example: "clinical_trial_patients.csv"
+            file_size:
+              type: integer
+              description: File size in bytes
+              example: 1048576
+            row_count:
+              type: integer
+              description: Number of data rows (excluding header)
+              example: 5000
+            columns:
+              $ref: '#/components/schemas/ColumnSchema'
+
+    PresignedUrlResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - url
+            - expires_at
+          properties:
+            url:
+              type: string
+              format: uri
+              description: Presigned S3 URL
+              example: "https://bucket.s3.amazonaws.com/..."
+            expires_at:
+              type: string
+              format: date-time
+              description: URL expiration time
+            file_name:
+              type: string
+              description: Original file name
+              example: "patients.csv"
+
+    # ============ COMPARISON SCHEMAS ============
+    CohortCompareRequest:
+      type: object
+      required:
+        - cohort_ids
+      properties:
+        cohort_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 2
+          maxItems: 5
+          description: IDs of cohorts to compare
+          example:
+            - "123e4567-e89b-12d3-a456-426614174000"
+            - "223e4567-e89b-12d3-a456-426614174001"
+
+    CohortComparisonItem:
+      type: object
+      description: Summary of a single cohort in comparison
+      properties:
+        cohort_id:
+          type: string
+          format: uuid
+        cohort_name:
+          type: string
+        patient_count:
+          type: integer
+          description: Patients matching filter
+        master_patient_count:
+          type: integer
+          description: Total patients in master data
+        match_rate:
+          type: number
+          format: float
+          description: Percentage of master data matching filter
+          example: 45.5
+        filter_count:
+          type: integer
+          description: Number of filter rules
+
+    CohortOverlap:
+      type: object
+      description: Overlap statistics between two cohorts
+      properties:
+        cohort_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: The two cohorts being compared
+        overlap_count:
+          type: integer
+          description: Number of patients in both cohorts
+        overlap_percentage:
+          type: number
+          format: float
+          description: Percentage overlap relative to smaller cohort
+        unique_to_first:
+          type: integer
+          description: Patients only in first cohort
+        unique_to_second:
+          type: integer
+          description: Patients only in second cohort
+
+    CohortCompareResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - cohorts
+            - overlaps
+          properties:
+            cohorts:
+              type: array
+              items:
+                $ref: '#/components/schemas/CohortComparisonItem'
+            overlaps:
+              type: array
+              items:
+                $ref: '#/components/schemas/CohortOverlap'
+              description: Pairwise overlaps between cohorts
+            total_unique_patients:
+              type: integer
+              description: Total unique patients across all cohorts
+            common_to_all:
+              type: integer
+              description: Patients common to all selected cohorts
+
+    # ============ ACTIVITY SCHEMAS ============
+    ActivityEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        action:
+          type: string
+          enum: [created, updated, filter_changed, exported, compared]
+        description:
+          type: string
+          example: "Filter updated: Added age >= 18 rule"
+        user_id:
+          type: string
+        user_name:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          description: Additional action-specific metadata
+
+    CohortActivityResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - content
+            - total_elements
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ActivityEntry'
+            total_elements:
+              type: integer
+            page:
+              type: integer
+            size:
+              type: integer
+
+    # ============ ANALYTICS SCHEMAS ============
+    AnalyticsResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            total_cohorts:
+              type: integer
+              description: Total number of cohorts
+            total_patients_screened:
+              type: integer
+              description: Total unique patients across all cohorts
+            average_match_rate:
+              type: number
+              format: float
+              description: Average filter match rate across cohorts
+            cohorts_created_in_period:
+              type: integer
+              description: Cohorts created in the selected time period
+            top_cohorts:
+              type: array
+              items:
+                type: object
+                properties:
+                  cohort_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  patient_count:
+                    type: integer
+                  match_rate:
+                    type: number
+                    format: float
+
+    # ============ RESPONSE WRAPPERS ============
+    CohortResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Cohort'
+
+    CohortListResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - content
+            - total_elements
+            - page
+            - size
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cohort'
+            total_elements:
+              type: integer
+            page:
+              type: integer
+            size:
+              type: integer
+            total_pages:
+              type: integer
+
+    DeleteResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Cohort deleted successfully
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Resource not found
+        error_code:
+          type: string
+          example: COHORT_NOT_FOUND
+        details:
+          type: object
+          description: Additional error details

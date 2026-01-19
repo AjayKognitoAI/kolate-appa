@@ -1,0 +1,66 @@
+
+services:
+  # FastAPI Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: copilot-data-science-ml-backend
+    ports:
+      - "9061:8000"
+    environment:
+      # Application Configuration
+      APP_NAME: ${APP_NAME:-copilot-data-science-ml-agent}
+      VERSION: ${VERSION:-2.0.0}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
+
+      # Eureka Configuration
+      EUREKA_SERVER: ${EUREKA_SERVER:-http://service-registry:8761/eureka}
+      EUREKA_INSTANCE_HOST: ${EUREKA_INSTANCE_HOST:-copilot-data-science-ml-backend}
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8000}
+
+      # Google AI Configuration
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      MODEL_NAME: ${MODEL_NAME:-gemini-2.0-flash-exp}
+
+      # Azure Configuration
+      AZURE_API_KEY: ${AZURE_API_KEY:-}
+      AZURE_API_BASE: ${AZURE_API_BASE:-}
+      AZURE_API_VERSION: ${AZURE_API_VERSION:-2024-02-01}
+
+      # Database Configuration
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/db/data_science_agent.db}
+
+      # ChromaDB Configuration
+      CHROMA_DB_DIR: /app/data/chroma_db
+
+      # Application Settings
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:8000}
+      MAX_ITERATIONS: ${MAX_ITERATIONS:-10}
+      TEMPERATURE: ${TEMPERATURE:-0.7}
+      UPLOAD_DIR: /app/data/uploads
+      VISUALIZATION_DIR: /app/data/visualizations
+      ANALYSIS_CACHE_DIR: /app/data/analysis_cache
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-100}
+      SESSION_TIMEOUT_MINUTES: ${SESSION_TIMEOUT_MINUTES:-60}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      # Single mount for all persistent data (uploads, visualizations, analysis_cache, db, chroma_db)
+      - ./data:/app/data
+    networks:
+      - copilot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/copilot-data-science-ml-agent/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  copilot-network:
+    driver: bridge

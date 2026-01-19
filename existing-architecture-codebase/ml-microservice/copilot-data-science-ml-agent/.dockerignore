@@ -1,0 +1,66 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+env
+ENV
+.eggs
+*.egg-info
+*.egg
+.mypy_cache
+.pytest_cache
+.coverage
+htmlcov
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Frontend (not needed for backend container)
+frontend
+node_modules
+
+# Documentation
+*.md
+!README.md
+
+# Environment files - included for entrypoint script
+# .env files are copied to container and loaded via docker-entrypoint.sh
+# (no exclusion - files will be included by default)
+
+# Database files (will be mounted as volume)
+*.db
+*.sqlite
+
+# Data files (will be mounted as volume)
+data/uploads/*
+data/visualizations/*
+
+# Test files
+tests
+eval
+__tests__
+
+# Logs
+*.log
+logs
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist
+build

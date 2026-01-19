@@ -1,0 +1,478 @@
+{
+  "models": [
+    {
+      "model_key": "obj_response",
+      "display_name": "Objective Response Predictor",
+      "model_type": "classification",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/lung-cancer-therapy-s-service/models/obj_res.pkl",
+        "loader_type": "cloudpickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "response_mapping": {
+        "0": "Complete Response",
+        "1": "Partial Response",
+        "2": "Stable Disease",
+        "3": "Progression"
+      },
+      "is_primary": true,
+      "display_order": 1
+    },
+    {
+      "model_key": "total_ae",
+      "display_name": "Total Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/lung-cancer-therapy-s-service/models/rf_total_ae_model.pkl",
+        "loader_type": "cloudpickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 2
+    },
+    {
+      "model_key": "total_sae",
+      "display_name": "Total Serious Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/lung-cancer-therapy-s-service/models/rf_total_sae_model.pkl",
+        "loader_type": "cloudpickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 3
+    },
+    {
+      "model_key": "overall_survival",
+      "display_name": "Overall Survival Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/lung-cancer-therapy-s-service/models/rf_st.pkl",
+        "loader_type": "cloudpickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 4
+    }
+  ],
+  "fields": [
+    {
+      "name": "sex",
+      "type": "categorical",
+      "description": "Patient sex/gender",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Male", "Female"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 1
+      }
+    },
+    {
+      "name": "race",
+      "type": "categorical",
+      "description": "Patient race/ethnicity",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["White", "Black", "Asian", "Hispanic", "Other"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 2
+      }
+    },
+    {
+      "name": "arm",
+      "type": "categorical",
+      "description": "Treatment arm assignment",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Sunitinib", "Placebo"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 3
+      }
+    },
+    {
+      "name": "straf_chemo",
+      "type": "categorical",
+      "description": "Stratification chemotherapy type",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Carboplatin", "Cisplatin"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 4
+      }
+    },
+    {
+      "name": "straf_cycle",
+      "type": "categorical",
+      "description": "Stratification chemotherapy cycles",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["4 Cycles", "6 Cycles"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 5
+      }
+    },
+    {
+      "name": "cycle_maint",
+      "type": "number",
+      "description": "Number of maintenance cycles completed",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 50
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 6
+      }
+    },
+    {
+      "name": "br_maint",
+      "type": "categorical",
+      "description": "Best response during maintenance",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Complete Response", "Partial Response", "Stable Disease", "Progression"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 7
+      }
+    },
+    {
+      "name": "offtrt_rx",
+      "type": "categorical",
+      "description": "Reason for discontinuing treatment",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Disease Progression", "Adverse Event", "Death", "Completed", "Other"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 8
+      }
+    },
+    {
+      "name": "PS",
+      "type": "categorical",
+      "description": "ECOG Performance Status",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Fully Active", "Restricted in Strenuous Activity", "Ambulatory", "Limited Self-care"]
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 9
+      }
+    },
+    {
+      "name": "pci",
+      "type": "categorical",
+      "description": "Prophylactic Cranial Irradiation",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Yes", "No"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 10
+      }
+    },
+    {
+      "name": "cycle_maint2",
+      "type": "categorical",
+      "description": "Maintenance cycle category",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["1-4 Cycles", "5+ Cycles"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 11
+      }
+    },
+    {
+      "name": "failcens",
+      "type": "categorical",
+      "description": "Failure/censoring status for progression",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Progressed", "Censored"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 12
+      }
+    },
+    {
+      "name": "survtime",
+      "type": "number",
+      "description": "Overall survival time in months",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 13
+      }
+    },
+    {
+      "name": "failtime",
+      "type": "number",
+      "description": "Time to progression in months",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 14
+      }
+    },
+    {
+      "name": "survtime2",
+      "type": "number",
+      "description": "Secondary survival time measurement in months",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 15
+      }
+    },
+    {
+      "name": "failtime2",
+      "type": "number",
+      "description": "Secondary failure time measurement in months",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 16
+      }
+    },
+    {
+      "name": "cross_eval",
+      "type": "categorical",
+      "description": "Crossover evaluation status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Evaluable", "Not Evaluable/Not Crossover"]
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 17
+      }
+    },
+    {
+      "name": "agecat",
+      "type": "categorical",
+      "description": "Age category of patient",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["<65", ">=65"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 18
+      }
+    },
+    {
+      "name": "total_ae",
+      "type": "number",
+      "description": "Total number of adverse events",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Adverse Events",
+        "display_order": 19
+      }
+    },
+    {
+      "name": "total_sae",
+      "type": "number",
+      "description": "Total number of serious adverse events",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 50
+      },
+      "ui_config": {
+        "group": "Adverse Events",
+        "display_order": 20
+      }
+    },
+    {
+      "name": "survcens",
+      "type": "categorical",
+      "description": "Survival censoring status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Alive", "Died"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 21
+      }
+    },
+    {
+      "name": "mask_id",
+      "type": "string",
+      "description": "Masked patient identifier",
+      "category": "continuous",
+      "validation": {
+        "required": false
+      },
+      "ui_config": {
+        "group": "Identification",
+        "display_order": 22
+      }
+    }
+  ],
+  "preprocessing": {
+    "requires_one_hot": true,
+    "missing_value_strategy": "zero_fill"
+  },
+  "service_config": {
+    "cache_ttl_seconds": 300,
+    "batch_prediction_max_rows": 1000,
+    "enable_execution_tracking": true
+  },
+  "chart_config": {
+    "enabled": true,
+    "mongo_collection": "lung_cancer_therapy_s_chart_patients",
+    "response_field": "br_maint",
+    "response_values": {
+      "Responders": ["Complete Response", "CR"],
+      "Non-Responders": ["Partial Response", "Stable Disease", "Progression", "PR", "SD", "PD"]
+    },
+    "chart_types": [
+      {
+        "name": "Overall Response Distribution",
+        "field": "br_maint",
+        "chart_type": "pie",
+        "order": ["Complete Response", "Partial Response", "Stable Disease", "Progression"],
+        "is_distribution": true
+      },
+      {
+        "name": "Age Distribution",
+        "field": "agecat",
+        "chart_type": "bar",
+        "order": ["<65", ">=65"],
+        "is_distribution": true
+      },
+      {
+        "name": "Gender Distribution",
+        "field": "sex",
+        "chart_type": "bar",
+        "order": ["Female", "Male"],
+        "is_distribution": true
+      },
+      {
+        "name": "Performance Status",
+        "field": "PS",
+        "chart_type": "bar",
+        "order": ["Fully Active", "Restricted in Strenuous Activity", "Ambulatory", "Limited Self-care"],
+        "is_distribution": true
+      },
+      {
+        "name": "Race/Ethnicity",
+        "field": "race",
+        "chart_type": "bar",
+        "order": ["White", "Black", "Asian", "Hispanic", "Other"],
+        "is_distribution": true
+      },
+      {
+        "name": "Prophylactic Cranial Irradiation",
+        "field": "pci",
+        "chart_type": "pie",
+        "order": ["Yes", "No"],
+        "is_distribution": true
+      },
+      {
+        "name": "Chemotherapy Stratification",
+        "field": "straf_chemo",
+        "chart_type": "bar",
+        "order": ["Carboplatin", "Cisplatin"],
+        "is_distribution": true
+      },
+      {
+        "name": "Cycle Maintenance",
+        "field": "cycle_maint2",
+        "chart_type": "bar",
+        "order": ["1-4 Cycles", "5+ Cycles"],
+        "is_distribution": true
+      },
+      {
+        "name": "Treatment Arm",
+        "field": "arm",
+        "chart_type": "bar",
+        "order": ["Sunitinib", "Placebo"],
+        "is_distribution": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+#spring.application.name=message-publisher
+server:
+  port: 8015
+
+spring:
+  application:
+    name: message-publisher
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+kafka:
+  producer:
+    bootstrap-server: localhost:9092
+
+# Management Endpoints (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# Eureka Client Configuration (Defaults)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+logging:
+  level:
+    root: info
+    '[org.springframework]': info
+    '[kolate.ai]': info
+    org.springframework.vault: info
+    org.springframework.cloud.vault: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

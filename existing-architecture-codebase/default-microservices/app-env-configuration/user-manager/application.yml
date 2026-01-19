@@ -1,0 +1,52 @@
+server:
+  port: 9030
+
+spring:
+  application:
+    name: user-manager
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  main:
+    allow-bean-definition-overriding: true
+
+# Enable Feign client
+feign:
+  clients:
+    postgres-database-manager:
+      name: POSTGRES-DATABASE-MANAGER
+      path: /internal/postgres-database-manager
+    auth-manager:
+      name: AUTH-MANAGER
+      path: /api/auth-manager
+    message-publisher:
+      name: MESSAGE-PUBLISHER
+      path: /api/message-publisher
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+  circuitbreaker:
+    enabled: true
+
+# Actuator endpoints configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

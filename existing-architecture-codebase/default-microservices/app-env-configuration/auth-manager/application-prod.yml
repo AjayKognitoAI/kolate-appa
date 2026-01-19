@@ -1,0 +1,31 @@
+spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600
+      cache-null-values: false
+  data:
+    redis:
+      host: redis
+      port: 6379
+      connect-timeout: 2000
+      timeout: 1000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: 1000ms
+auth0:
+  domain: kolate-dev.us.auth0.com
+  mgmt-client-id: 3xJIOf5GRZrdIINDF0DWc8ohMuAKteGA
+  mgmt-client-secret: BZJGfLWnTrAseCPeq7mOi-_kfOAch-SAtj8BzSYiFGUSPpD5Hm6WoA0EFjL8rC6G
+  mgmt-audience: https://kolate-dev.us.auth0.com/api/v2/
+  self-service-profile: ssp_aRiDq6Ma1L8ZXcAeb96L1R
+  app-client-id: h6dJudhaZabm7tBZPjasngDncETxlXLk
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://service-registry:8761/eureka/}

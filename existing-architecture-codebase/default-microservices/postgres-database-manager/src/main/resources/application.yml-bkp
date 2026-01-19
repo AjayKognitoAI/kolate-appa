@@ -1,0 +1,88 @@
+server:
+  port: 9025
+
+spring:
+  application:
+    name: postgres-database-manager
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  main:
+    allow-bean-definition-overriding: true
+
+  # Default datasource configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fallback_db
+    username: postgres
+    password: toor
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 300000
+      pool-name: HikariPool-Default
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  # Redis configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000 # 1 hour cache expiration
+      cache-null-values: false
+      use-key-prefix: true
+#      key-prefix: user-manager:
+
+# External service configurations
+#services:
+#  enterprise-manager:
+#    url: http://enterprise-manager
+
+# Enable Feign client
+feign:
+  clients:
+    enterprise-manager:
+      name: ENTERPRISE-MANAGER
+      path: /internal/enterprise-manager
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+  circuitbreaker:
+    enabled: true
+
+# Actuator endpoints configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

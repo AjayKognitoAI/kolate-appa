@@ -1,0 +1,127 @@
+# Server Configuration
+server:
+  port: 8000
+
+# Application Name
+spring:
+  application:
+    name: api-gateway
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: local
+
+  # Spring Cloud Gateway Configuration
+  cloud:
+    gateway:
+      routes:
+        - id: enterprise-manager
+          uri: lb://enterprise-manager
+          predicates:
+            - Path=/api/enterprise-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10  # Requests per second
+                redis-rate-limiter.burstCapacity: 20  # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}"      # Bean for rate limiting
+            # Apply circuit breaker for failure handling
+            - name: CircuitBreaker
+              args:
+                name: enterpriseManagerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/enterprise-manager
+
+        - id: enterprise-manager-external
+          uri: lb://enterprise-manager
+          predicates:
+            - Path=/external/enterprise-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10  # Requests per second
+                redis-rate-limiter.burstCapacity: 20  # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}"      # Bean for rate limiting
+            # Apply circuit breaker for failure handling
+            - name: CircuitBreaker
+              args:
+                name: enterpriseManagerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/enterprise-manager
+
+  # Security Configuration for OAuth2 + JWT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${auth0.issuer}
+          jwk-set-uri: ${auth0.jwks-uri}
+          audiences: ${auth0.audience}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    ai.kolate.api_gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: INFO
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management Endpoints (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Redis Configuration (Required for rate limiting)
+redis:
+  host: localhost
+  port: 6379
+
+# Auth0 Configuration
+auth0:
+  domain: kolate-dev.us.auth0.com
+  issuer: https://kolate-dev.us.auth0.com/
+  audience: https://kolate-dev.com
+  jwks-uri: https://kolate-dev.us.auth0.com/.well-known/jwks.json
+  token-validation:
+    enabled: true
+    require-issuer: true
+    require-audience: true
+
+app:
+  cors:
+    allowed-origins:
+      - "*"  # Use "*" for public access (no credentials allowed)
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+    allow-credentials: false  # Must be false if origins include "*"
+    max-age: 3600

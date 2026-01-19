@@ -1,0 +1,79 @@
+server:
+  port: 9090
+
+spring:
+  profiles:
+    active: local
+  application:
+    name: enterprise-infra-provisioner
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: enterprise-infra-provisioner
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 1
+
+terraform:
+  working-directory: ${TERRAFORM_WORKING_DIRECTORY:/terraform}
+  timeout-minutes: ${TERRAFORM_TIMEOUT_MINUTES:10}
+
+logging:
+  level:
+    ai.kolate.enterpriseinfraprovisioner: DEBUG
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kolate_terraform_db
+    username: postgres
+    password: toor
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: kolate_terraform_dev
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  data:
+    host-address: localhost
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  kafka:
+    bootstrap-servers: 10.0.8.57:9092
+  datasource:
+    url: jdbc:postgresql://10.0.8.57:5432/kolate_terraform_db
+    username: kolatepgs
+    password: Kolate#2024Pgx
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: kolate_terraform_dev
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  data:
+    host-address: 10.0.8.57

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx claude-code-templates@latest --agent=programming-languages/python-pro --yes)",
+      "Bash(npx claude-code-templates@latest --agent=database/database-architect --yes)",
+      "Bash(npx claude-code-templates@latest --agent=expert-advisors/architect-review --yes)",
+      "Bash(npx claude-code-templates@latest --agent=development-tools/test-engineer --yes)",
+      "Bash(npx claude-code-templates@latest --agent=security/security-auditor --yes)",
+      "Bash(npx claude-code-templates@latest --agent=programming-languages/typescript-pro --yes)",
+      "Bash(npx claude-code-templates@latest:*)",
+      "Bash(npx add-skill:*)",
+      "Bash(npx add-skill@latest vercel-labs/agent-skills --yes)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Ajay.KOGNITOAI\\\\Documents\\\\poc\\\\kolate-appa\" -Recurse -Directory -Filter \".git\" -Force)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(git status:*)"
+    ]
+  }
+}

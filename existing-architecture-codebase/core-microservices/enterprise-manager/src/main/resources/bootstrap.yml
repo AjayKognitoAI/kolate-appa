@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: enterprise-manager
+  config:
+    import: configserver:http://${CONFIG_SERVER:config-server}:8888
+  profiles:
+    active:
+      - local

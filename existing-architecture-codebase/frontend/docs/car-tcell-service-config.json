@@ -1,0 +1,783 @@
+{
+  "models": [
+    {
+      "model_key": "obj_response",
+      "display_name": "Objective Response Predictor",
+      "model_type": "classification",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/car-tcell-service/models/R-CHOP_obj_response.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "response_mapping": {
+        "0": "Complete Response",
+        "1": "Partial Response",
+        "2": "Stable Disease",
+        "3": "Progressive Disease"
+      },
+      "is_primary": true,
+      "display_order": 1
+    },
+    {
+      "model_key": "total_ae",
+      "display_name": "Total Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/car-tcell-service/models/R-CHOP_Total_AE.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 2
+    },
+    {
+      "model_key": "total_sae",
+      "display_name": "Total Serious Adverse Events Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/car-tcell-service/models/R-CHOP_Total_SAE.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 3
+    },
+    {
+      "model_key": "gr_345",
+      "display_name": "Grade 3-4-5 Events Predictor",
+      "model_type": "classification",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/car-tcell-service/models/R-CHOP_gr345_model.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 4
+    },
+    {
+      "model_key": "total_nes",
+      "display_name": "Total Neurologic Events Predictor",
+      "model_type": "regression",
+      "model_framework": "random_forest",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/car-tcell-service/models/R-CHOP_ne_model.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "random_forest_tree_variance",
+        "sample_fraction": 0.2
+      },
+      "display_order": 5
+    }
+  ],
+  "fields": [
+    {
+      "name": "Age",
+      "type": "number",
+      "description": "Patient age at diagnosis",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 18,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 1
+      }
+    },
+    {
+      "name": "sex",
+      "type": "categorical",
+      "description": "Patient sex/gender",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Female", "Male"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 2
+      }
+    },
+    {
+      "name": "sex_id",
+      "type": "categorical",
+      "description": "Patient sex/gender",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Female", "Male"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 3
+      }
+    },
+    {
+      "name": "race_id",
+      "type": "categorical",
+      "description": "Patient race classification",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Black or African American", "White"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 4
+      }
+    },
+    {
+      "name": "ethnic_id",
+      "type": "categorical",
+      "description": "Patient ethnicity classification",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Hispanic or Latino", "Non-Hispanic"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 5
+      }
+    },
+    {
+      "name": "ptage",
+      "type": "number",
+      "description": "Patient age at diagnosis",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 18,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 6
+      }
+    },
+    {
+      "name": "ps",
+      "type": "number",
+      "description": "ECOG performance status score",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 4
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 7
+      }
+    },
+    {
+      "name": "ECOG performance score",
+      "type": "number",
+      "description": "ECOG performance status score (0-4, lower is better)",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 4
+      },
+      "ui_config": {
+        "group": "Clinical Assessment",
+        "display_order": 8
+      }
+    },
+    {
+      "name": "stage",
+      "type": "categorical",
+      "description": "Disease stage at diagnosis",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Stage III de novo CD20+ DLBCL", "Stage IV de novo CD20+ DLBCL"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 9
+      }
+    },
+    {
+      "name": "diagnosis",
+      "type": "categorical",
+      "description": "Primary diagnosis of the patient",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Diffuse large B-cell lymphoma (DLBCL), NOS", "Primary mediastinal large B-cell lymphoma"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 10
+      }
+    },
+    {
+      "name": "ipi",
+      "type": "number",
+      "description": "International Prognostic Index score (0-5)",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 5
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 11
+      }
+    },
+    {
+      "name": "ipig",
+      "type": "categorical",
+      "description": "IPI risk group classification",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["High", "High-Intermediate", "Low-Intermediate"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 12
+      }
+    },
+    {
+      "name": "ipig2",
+      "type": "categorical",
+      "description": "IPI binary risk group (0-2 vs 3-5)",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["0 to 2", "3 to 5"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 13
+      }
+    },
+    {
+      "name": "ldh_ipi",
+      "type": "categorical",
+      "description": "LDH level component of IPI score",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Elevated", "Normal"]
+      },
+      "ui_config": {
+        "group": "Laboratory Values",
+        "display_order": 14
+      }
+    },
+    {
+      "name": "mediastinal",
+      "type": "categorical",
+      "description": "Mediastinal involvement classification",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Not Primary Mediastinal", "Primary Mediastinal"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 15
+      }
+    },
+    {
+      "name": "Double expressed",
+      "type": "categorical",
+      "description": "Double expression status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Yes", "No"]
+      },
+      "ui_config": {
+        "group": "Molecular Markers",
+        "display_order": 16
+      }
+    },
+    {
+      "name": "dh",
+      "type": "categorical",
+      "description": "Double hit lymphoma status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["No", "Yes"]
+      },
+      "ui_config": {
+        "group": "Molecular Markers",
+        "display_order": 17
+      }
+    },
+    {
+      "name": "bcl2_dh_pos",
+      "type": "categorical",
+      "description": "BCL2 double hit status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Normal", "Positive"]
+      },
+      "ui_config": {
+        "group": "Molecular Markers",
+        "display_order": 18
+      }
+    },
+    {
+      "name": "bcl6_pos",
+      "type": "categorical",
+      "description": "BCL6 status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Normal", "Positive"]
+      },
+      "ui_config": {
+        "group": "Molecular Markers",
+        "display_order": 19
+      }
+    },
+    {
+      "name": "myc_fish_pos",
+      "type": "categorical",
+      "description": "MYC FISH test result",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Normal", "Positive"]
+      },
+      "ui_config": {
+        "group": "Molecular Markers",
+        "display_order": 20
+      }
+    },
+    {
+      "name": "Extranodal Disease (>=1 site)",
+      "type": "categorical",
+      "description": "Extranodal disease presence (>=1 site)",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Extranodal Disease", "Not extranodal"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 21
+      }
+    },
+    {
+      "name": "Extranodal Disease Group",
+      "type": "categorical",
+      "description": "Extranodal disease grouping for IPI scoring",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["0-1", "2+"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 22
+      }
+    },
+    {
+      "name": "exnode_ipi",
+      "type": "categorical",
+      "description": "Extranodal disease component of IPI score",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["0-1", "2+"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 23
+      }
+    },
+    {
+      "name": "exnoddz",
+      "type": "categorical",
+      "description": "Extranodal disease presence",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Extranodal Disease", "Not extranodal"]
+      },
+      "ui_config": {
+        "group": "Disease Characteristics",
+        "display_order": 24
+      }
+    },
+    {
+      "name": "rx",
+      "type": "categorical",
+      "description": "Treatment regimen received",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["R-CHOP"]
+      },
+      "ui_config": {
+        "group": "Treatment",
+        "display_order": 25
+      }
+    },
+    {
+      "name": "bestresp",
+      "type": "categorical",
+      "description": "Best response achieved during treatment",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["CR", "PD", "SD"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 26
+      }
+    },
+    {
+      "name": "bestrespg",
+      "type": "categorical",
+      "description": "Best response grade/classification",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["CR/CRu", "PD", "SD"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 27
+      }
+    },
+    {
+      "name": "resp",
+      "type": "categorical",
+      "description": "Treatment response achieved",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["No", "Yes"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 28
+      }
+    },
+    {
+      "name": "Follow-up Status",
+      "type": "categorical",
+      "description": "Patient follow-up status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Censor", "Event"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 29
+      }
+    },
+    {
+      "name": "fu_stat",
+      "type": "categorical",
+      "description": "Follow-up status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Censor", "Event"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 30
+      }
+    },
+    {
+      "name": "Overall Survival (days)",
+      "type": "number",
+      "description": "Overall survival time in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 5000
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 31
+      }
+    },
+    {
+      "name": "fu_time",
+      "type": "number",
+      "description": "Follow-up time in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 5000
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 32
+      }
+    },
+    {
+      "name": "PFS Status",
+      "type": "categorical",
+      "description": "Progression-free survival status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Censor", "Event"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 33
+      }
+    },
+    {
+      "name": "PFS Time (days)",
+      "type": "number",
+      "description": "Progression-free survival time in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 5000
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 34
+      }
+    },
+    {
+      "name": "efs_stat",
+      "type": "categorical",
+      "description": "Event-free survival status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Censor", "Event"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 35
+      }
+    },
+    {
+      "name": "efs_time",
+      "type": "number",
+      "description": "Event-free survival time in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 5000
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 36
+      }
+    },
+    {
+      "name": "pg_stat",
+      "type": "categorical",
+      "description": "Disease progression status",
+      "category": "categorical",
+      "validation": {
+        "required": false,
+        "allowed_values": ["Censor", "Event"]
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 37
+      }
+    },
+    {
+      "name": "pg_time",
+      "type": "number",
+      "description": "Time to progression in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 5000
+      },
+      "ui_config": {
+        "group": "Clinical Outcomes",
+        "display_order": 38
+      }
+    },
+    {
+      "name": "Time from Diagnosis to First Dose (days)",
+      "type": "number",
+      "description": "Time from diagnosis to first treatment dose in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Treatment Timeline",
+        "display_order": 39
+      }
+    },
+    {
+      "name": "dx_to_tx",
+      "type": "number",
+      "description": "Time from diagnosis to treatment initiation in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Treatment Timeline",
+        "display_order": 40
+      }
+    },
+    {
+      "name": "Time from Diagnosis to Registration (days)",
+      "type": "number",
+      "description": "Time from diagnosis to study registration in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Treatment Timeline",
+        "display_order": 41
+      }
+    },
+    {
+      "name": "dx_to_reg",
+      "type": "number",
+      "description": "Time from diagnosis to registration in days",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Treatment Timeline",
+        "display_order": 42
+      }
+    },
+    {
+      "name": "patient ID",
+      "type": "number",
+      "description": "Patient ID - unique identifier for each patient",
+      "category": "continuous",
+      "validation": {
+        "required": false
+      },
+      "ui_config": {
+        "group": "Identification",
+        "display_order": 43
+      }
+    },
+    {
+      "name": "patid",
+      "type": "number",
+      "description": "Patient ID - unique identifier for each patient",
+      "category": "continuous",
+      "validation": {
+        "required": false
+      },
+      "ui_config": {
+        "group": "Identification",
+        "display_order": 44
+      }
+    }
+  ],
+  "preprocessing": {
+    "requires_one_hot": true,
+    "missing_value_strategy": "zero_fill"
+  },
+  "service_config": {
+    "cache_ttl_seconds": 300,
+    "batch_prediction_max_rows": 1000,
+    "enable_execution_tracking": true
+  },
+  "chart_config": {
+    "enabled": true,
+    "mongo_collection": "cart_b_chart_patients",
+    "response_field": "bestrespg",
+    "response_values": {
+      "Responders": ["CR", "CR/CRu", "CRu"],
+      "Non-Responders": ["PD", "SD"]
+    },
+    "chart_types": [
+      {
+        "name": "LDH levels",
+        "field": "ldh_ipi",
+        "chart_type": "bar",
+        "order": ["Normal", "Elevated"],
+        "is_distribution": true
+      },
+      {
+        "name": "IPI Score",
+        "field": "ipig",
+        "chart_type": "bar",
+        "order": ["Low", "Low-intermediate", "High-intermediate", "High"],
+        "is_distribution": true
+      },
+      {
+        "name": "Age",
+        "field": "ptage",
+        "chart_type": "bar",
+        "order": ["20-35", "35-50", "50-65+", "65+"],
+        "is_distribution": true,
+        "custom_grouping": true,
+        "grouping_type": "age"
+      },
+      {
+        "name": "Primary Mediastinal Y/N",
+        "field": "mediastinal",
+        "chart_type": "pie",
+        "order": ["Primary mediastinal", "Non primary mediastinal"],
+        "is_distribution": true
+      },
+      {
+        "name": "Gender",
+        "field": "sex_id",
+        "chart_type": "pie",
+        "order": ["Female", "Male"],
+        "is_distribution": true
+      }
+    ]
+  }
+}

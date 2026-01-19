@@ -1,0 +1,338 @@
+{
+  "models": [
+    {
+      "model_key": "xgboost_s0",
+      "display_name": "XGBoost (Minimal Features)",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "version": "1.0.0",
+      "storage": {
+        "source_type": "filesystem",
+        "file_path": "C:/Users/Ajay.KOGNITOAI/Documents/kolateai/ml-microservices/lung-cancer-service/models/xgboost_model_s0.pkl",
+        "loader_type": "pickle"
+      },
+      "confidence_config": {
+        "strategy": "xgboost_ensemble_variance",
+        "sample_fraction": 0.2
+      },
+      "response_mapping": {
+        "0": "No",
+        "1": "Yes"
+      },
+      "is_primary": true,
+      "display_order": 1
+    }
+  ],
+  "fields": [
+    {
+      "name": "Patient_ID",
+      "type": "number",
+      "description": "Unique identifier for each patient",
+      "category": "continuous",
+      "validation": {
+        "required": false
+      },
+      "ui_config": {
+        "group": "Identification",
+        "display_order": 1
+      }
+    },
+    {
+      "name": "Age",
+      "type": "number",
+      "description": "Patient age in years",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 120
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 2
+      }
+    },
+    {
+      "name": "Gender",
+      "type": "categorical",
+      "description": "Patient gender/sex",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Male", "Female"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 3
+      }
+    },
+    {
+      "name": "Smoking_History",
+      "type": "categorical",
+      "description": "Patient's smoking history status",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Never", "Former", "Current"]
+      },
+      "ui_config": {
+        "group": "Lifestyle",
+        "display_order": 4
+      }
+    },
+    {
+      "name": "Years_Smoked",
+      "type": "number",
+      "description": "Number of years the patient has smoked",
+      "category": "continuous",
+      "validation": {
+        "required": false,
+        "min_value": 0,
+        "max_value": 100
+      },
+      "ui_config": {
+        "group": "Lifestyle",
+        "display_order": 5
+      }
+    },
+    {
+      "name": "Family_History_Cancer",
+      "type": "categorical",
+      "description": "Whether patient has family history of cancer",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Medical History",
+        "display_order": 6
+      }
+    },
+    {
+      "name": "Occupation",
+      "type": "categorical",
+      "description": "Patient's occupation category",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Farmer", "Factory Worker", "Office Worker", "Other"]
+      },
+      "ui_config": {
+        "group": "Demographics",
+        "display_order": 7
+      }
+    },
+    {
+      "name": "Exposure_to_Toxins",
+      "type": "categorical",
+      "description": "Whether patient has been exposed to environmental toxins",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Environmental",
+        "display_order": 8
+      }
+    },
+    {
+      "name": "Residential_Area",
+      "type": "categorical",
+      "description": "Type of residential area where patient lives",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Urban", "Rural", "Suburban"]
+      },
+      "ui_config": {
+        "group": "Environmental",
+        "display_order": 9
+      }
+    },
+    {
+      "name": "BMI",
+      "type": "number",
+      "description": "Body Mass Index of the patient",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 10,
+        "max_value": 60
+      },
+      "ui_config": {
+        "group": "Physical Measurements",
+        "display_order": 10
+      }
+    },
+    {
+      "name": "Chest_Pain_Symptoms",
+      "type": "categorical",
+      "description": "Presence of chest pain symptoms",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Symptoms",
+        "display_order": 11
+      }
+    },
+    {
+      "name": "Shortness_of_Breath",
+      "type": "categorical",
+      "description": "Presence of shortness of breath symptoms",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Symptoms",
+        "display_order": 12
+      }
+    },
+    {
+      "name": "Chronic_Cough",
+      "type": "categorical",
+      "description": "Presence of chronic cough symptoms",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Symptoms",
+        "display_order": 13
+      }
+    },
+    {
+      "name": "Weight_Loss",
+      "type": "categorical",
+      "description": "Presence of unexplained weight loss",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["TRUE", "FALSE"]
+      },
+      "ui_config": {
+        "group": "Symptoms",
+        "display_order": 14
+      }
+    },
+    {
+      "name": "Physical_Activity_Level",
+      "type": "categorical",
+      "description": "Patient's level of physical activity",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["High", "Moderate"]
+      },
+      "ui_config": {
+        "group": "Lifestyle",
+        "display_order": 15
+      }
+    },
+    {
+      "name": "Dietary_Habits",
+      "type": "categorical",
+      "description": "Patient's dietary habits classification",
+      "category": "categorical",
+      "validation": {
+        "required": true,
+        "allowed_values": ["Poor", "Average", "Good"]
+      },
+      "ui_config": {
+        "group": "Lifestyle",
+        "display_order": 16
+      }
+    },
+    {
+      "name": "Air_Quality_Index",
+      "type": "number",
+      "description": "Air Quality Index of patient's residential area",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 500
+      },
+      "ui_config": {
+        "group": "Environmental",
+        "display_order": 17
+      }
+    },
+    {
+      "name": "Leukocytes",
+      "type": "number",
+      "description": "White blood cell count",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 50000
+      },
+      "ui_config": {
+        "group": "Laboratory Tests",
+        "display_order": 18
+      }
+    },
+    {
+      "name": "Alkaline_Phosphatase",
+      "type": "number",
+      "description": "Alkaline phosphatase enzyme level",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 1000
+      },
+      "ui_config": {
+        "group": "Laboratory Tests",
+        "display_order": 19
+      }
+    },
+    {
+      "name": "Blood_Urea_Nitrogen",
+      "type": "number",
+      "description": "Blood urea nitrogen level",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 200
+      },
+      "ui_config": {
+        "group": "Laboratory Tests",
+        "display_order": 20
+      }
+    },
+    {
+      "name": "Erythrocytes",
+      "type": "number",
+      "description": "Red blood cell count",
+      "category": "continuous",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 10
+      },
+      "ui_config": {
+        "group": "Laboratory Tests",
+        "display_order": 21
+      }
+    }
+  ],
+  "preprocessing": {
+    "requires_one_hot": true,
+    "missing_value_strategy": "zero_fill"
+  },
+  "service_config": {
+    "cache_ttl_seconds": 300,
+    "batch_prediction_max_rows": 1000,
+    "enable_execution_tracking": true
+  }
+}

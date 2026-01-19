@@ -1,0 +1,22 @@
+package ai.kolate.project_manager.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProjectStatsResponse {
+
+    private long totalProjects;
+    private long activeProjects;
+    private long completedProjects;
+    private long totalProjectUsers;
+    private long totalAdmins;
+    private long totalManagers;
+    private long totalMembers;
+    private double averageUsersPerProject;
+}

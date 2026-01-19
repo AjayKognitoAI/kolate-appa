@@ -1,0 +1,62 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: enterprise-manager
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kolate_master
+    username: postgres
+    password: toor
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: kolate_dev
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 10000
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+server:
+  port: 8010
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# API Clients configuration
+feign:
+  clients:
+    message-publisher:
+      name: MESSAGE-PUBLISHER
+      path: /api/message-publisher/v1
+    auth-manager:
+      name: AUTH-MANAGER
+      path: /api/auth-manager
+
+app:
+  data:
+    auth0-client: h6dJudhaZabm7tBZPjasngDncETxlXLk
+    invite-url: http://localhost:3000/sso-configuration?cid=%s&eid=%s&ename=%s
+    invite-template-name: enterprise-invite

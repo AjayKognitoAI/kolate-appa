@@ -1,0 +1,208 @@
+# Server Configuration
+server:
+  port: 9000
+
+# Application Name
+spring:
+  application:
+    name: api-gateway
+  main:
+    allow-bean-definition-overriding: true
+  # Spring Cloud Gateway Configuration
+  cloud:
+    gateway:
+      routes:
+        - id: enterprise-manager
+          uri: lb://enterprise-manager
+          predicates:
+            - Path=/api/enterprise-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+            # Apply circuit breaker for failure handling
+            - name: CircuitBreaker
+              args:
+                name: enterpriseManagerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/enterprise-manager
+
+        - id: enterprise-manager-external
+          uri: lb://enterprise-manager
+          predicates:
+            - Path=/external/enterprise-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+            # Apply circuit breaker for failure handling
+            - name: CircuitBreaker
+              args:
+                name: enterpriseManagerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/enterprise-manager
+
+        - id: user-manager
+          uri: lb://user-manager
+          predicates:
+            - Path=/api/user-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: project-manager
+          uri: lb://project-manager
+          predicates:
+            - Path=/api/project-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: mongo-database-manager
+          uri: lb://mongo-database-manager
+          predicates:
+            - Path=/api/mongo-database-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: car-tcell-service
+          uri: lb://car-tcell-service
+          predicates:
+            - Path=/api/car-tcell-service/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: sclc-therapy-n-service
+          uri: lb://sclc-therapy-n-service
+          predicates:
+            - Path=/api/sclc-therapy-n-service/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: lung-cancer-service
+          uri: lb://lung-cancer-service
+          predicates:
+            - Path=/api/lung-cancer-service/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: lung-cancer-therapy-s-service
+          uri: lb://lung-cancer-therapy-s-service
+          predicates:
+            - Path=/api/lung-cancer-therapy-s-service/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+                
+        - id: notification-center
+          uri: lb://notification-center
+          predicates:
+            - Path=/api/notification-center/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+        - id: asset-manager
+          uri: lb://asset-manager
+          predicates:
+            - Path=/api/asset-manager/**
+          filters:
+            # Apply rate limiting to this route
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # Requests per second
+                redis-rate-limiter.burstCapacity: 20 # Max requests per burst
+                key-resolver: "#{@ipKeyResolver}" # Bean for rate limiting
+
+  # Security Configuration for OAuth2 + JWT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${auth0.issuer}
+          jwk-set-uri: ${auth0.jwks-uri}
+          audiences: ${auth0.audience}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    ai.kolate.api_gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: INFO
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management Endpoints (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# Eureka Client Configuration
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+# Auth0 Configuration
+# auth0:
+#   domain: kolate-dev.us.auth0.com
+#   issuer: https://kolate-dev.us.auth0.com/
+#   audience: https://kolate-dev.com
+#   jwks-uri: https://kolate-dev.us.auth0.com/.well-known/jwks.json
+#   token-validation:
+#     enabled: true
+#     require-issuer: true
+#     require-audience: true

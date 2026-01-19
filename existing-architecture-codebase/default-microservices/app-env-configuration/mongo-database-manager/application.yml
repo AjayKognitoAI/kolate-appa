@@ -1,0 +1,63 @@
+server:
+  port: 9050
+
+spring:
+  application:
+    name: mongo-database-manager
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS
+    serialization:
+      write-dates-as-timestamps: false
+  main:
+    allow-bean-definition-overriding: true
+
+# Enable Feign client
+feign:
+  clients:
+    enterprise-manager:
+      name: ENTERPRISE-MANAGER
+      path: /internal/enterprise-manager
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+  circuitbreaker:
+    enabled: true
+
+# Actuator endpoints configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    ai.kolate.mongo_database_manager: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.security: INFO
+    com.mongodb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: mongo-database-manager   # use Docker/K8s service name
+    prefer-ip-address: false           # advertise hostname instead of container IP
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    non-secure-port: ${server.port}    # make sure it registers correct port

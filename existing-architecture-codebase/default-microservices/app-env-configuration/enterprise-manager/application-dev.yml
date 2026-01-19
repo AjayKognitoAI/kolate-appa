@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://10.0.8.57:5432/kolate_master
+    username: kolatepgs
+    password: Kolate#2024Pgx
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: kolate_dev
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: 10.0.8.57
+      port: 6379
+      timeout: 10000
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+kafka:
+  bootstrap-servers: 10.0.8.57:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+
+app:
+  data:
+    auth0-client: h6dJudhaZabm7tBZPjasngDncETxlXLk
+    invite-url: https://app-dev.kolate.ai/sso-configuration?cid=%s&eid=%s&ename=%s
+    schema-name-prefix: _dev

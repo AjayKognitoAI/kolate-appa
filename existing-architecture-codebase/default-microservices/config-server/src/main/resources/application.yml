@@ -1,0 +1,137 @@
+server:
+  port: ${PORT:8888}
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 20
+    max-connections: 10000
+    connection-timeout: 5000
+    accept-count: 100
+
+eureka:
+  client:
+    enabled: ${EUREKA_CLIENT_ENABLED:true}
+    register-with-eureka: ${EUREKA_REGISTER_ENABLED:true}
+    fetch-registry: ${EUREKA_FETCH_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:${spring.application.name}}
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+spring:
+  application:
+    name: config-server
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@github.com:Kolate-ai/app-env-configuration.git
+          ignore-local-ssh-settings: true
+          default-label: main
+          search-paths: "{application}"
+          clone-on-start: true
+          private-key: |
+            -----BEGIN OPENSSH PRIVATE KEY-----
+            b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+            QyNTUxOQAAACCEin5Ho4hV7vrq2ZNkVPN2cAUAYAWFBXO1QiYNcejZBQAAAJi9lhsEvZYb
+            BAAAAAtzc2gtZWQyNTUxOQAAACCEin5Ho4hV7vrq2ZNkVPN2cAUAYAWFBXO1QiYNcejZBQ
+            AAAEDsbni/Gqn5AJHYoTuhFnUsaNRq1pVoo1pJJxSgl7SQRoSKfkejiFXu+urZk2RU83Zw
+            BQBgBYUFc7VCJg1x6NkFAAAAEHN1cml5YUBrb2xhdGUuYWkBAgMEBQ==
+            -----END OPENSSH PRIVATE KEY-----
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: ${CONFIG_LOG_LEVEL:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+
+# Local Profile
+spring:
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.vault: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+
+---
+
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: INFO
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://service-registry:8761/eureka/}
+
+---
+
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://service-registry:8761/eureka/}
+
+---
+
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    org.springframework.cloud.config: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://service-registry:8761/eureka/}

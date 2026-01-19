@@ -1,0 +1,24 @@
+spring:
+  # Default MongoDB Configuration (for fallback)
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: default_db
+      connection-pool:
+        max-size: 20
+        min-size: 5
+      connection-timeout: 10000
+    # redis:
+    #   host: localhost
+    #   port: 6379
+  
+  # Cache Configuration
+  cache:
+    type: simple # Change to redis when Redis is available
+    # redis:
+    #   cache-null-values: false
+    cache-names: mongo-datasource-metadata
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

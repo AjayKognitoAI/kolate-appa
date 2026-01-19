@@ -1,0 +1,53 @@
+#spring.application.name=auth-manager
+server:
+  port: 9005
+
+# Enable logging for OAuth2 client
+logging:
+  level:
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
+    ai.kolate.auth_manager: DEBUG
+    org.springframework.data.redis: INFO
+    org.springframework.cache: DEBUG
+
+spring:
+  application:
+    name: auth-manager
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  security:
+    oauth2:
+      client:
+        registration:
+          auth0-mgmt:
+            client-id: ${auth0.mgmt-client-id}
+            client-secret: ${auth0.mgmt-client-secret}
+            audience: ${auth0.mgmt-audience}
+            authorization-grant-type: client_credentials
+#            scope: read:users,update:users,create:users
+            provider: auth0
+        provider:
+          auth0:
+            token-uri: https://${auth0.domain}/oauth/token
+
+# Auth0 settings
+auth0:
+  domain: kolate-dev.us.auth0.com
+  mgmt-client-id: 3xJIOf5GRZrdIINDF0DWc8ohMuAKteGA
+  mgmt-client-secret: BZJGfLWnTrAseCPeq7mOi-_kfOAch-SAtj8BzSYiFGUSPpD5Hm6WoA0EFjL8rC6G
+  mgmt-audience: https://kolate-dev.us.auth0.com/api/v2/
+  self-service-profile: ssp_aRiDq6Ma1L8ZXcAeb96L1R
+  app-client-id: h6dJudhaZabm7tBZPjasngDncETxlXLk
+
+
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

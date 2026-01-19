@@ -1,0 +1,38 @@
+spring:
+  # Default datasource configuration
+  datasource:
+    url: jdbc:postgresql://10.0.8.57:5432/fallback_db
+    username: kolatepgs
+    password: Kolate#2024Pgx
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 300000
+      pool-name: HikariPool-Default
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  # Redis configuration
+  data:
+    redis:
+      host: 10.0.8.57
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      # time-to-live: 3600000 # 1 hour cache expiration
+      cache-null-values: false
+      # use-key-prefix: true
+#      key-prefix: user-manager:
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/

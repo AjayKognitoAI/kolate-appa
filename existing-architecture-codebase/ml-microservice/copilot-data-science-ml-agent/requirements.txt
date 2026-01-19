@@ -1,0 +1,70 @@
+# Core dependencies for Data Science & ML Chatbot
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-dotenv
+python-multipart
+pydantic
+pydantic-settings
+py-eureka-client
+
+# Google AI/Cloud
+google-adk
+google-genai
+google-generativeai
+google-cloud-aiplatform
+google-cloud-bigquery
+google-cloud-storage
+google-cloud-speech
+google-cloud-secret-manager
+
+# LLM Support
+litellm
+openai
+tiktoken
+
+# Data Science & ML
+pandas
+numpy
+scipy
+scikit-learn
+statsmodels
+seaborn
+matplotlib
+plotly
+
+# PDF Processing
+pdfplumber
+pdfminer-six
+pypdf2
+
+# Excel Support
+openpyxl
+
+# HTTP & Web
+httpx
+requests
+aiohttp
+
+# Jupyter Support
+jupyter
+jupyterlab
+ipykernel
+ipywidgets
+
+# Vector Database
+chromadb
+
+# AWS
+boto3
+botocore
+
+# Scheduler
+APScheduler>=3.10.0
+
+# Utilities
+python-json-logger
+tqdm
+pyyaml
+beautifulsoup4

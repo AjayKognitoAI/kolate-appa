@@ -1,0 +1,368 @@
+.font8 {
+  font-size: 0.5rem;
+  line-height: 1rem;
+}
+
+.font10 {
+  font-size: 0.625rem;
+  line-height: 1.125rem;
+}
+
+.font12 {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+.font14 {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+}
+
+.font16 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.font18 {
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+}
+
+.font20 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font24 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font28 {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+}
+
+.font32 {
+  font-size: 2rem;
+  line-height: 2.5rem;
+}
+
+.font36 {
+  font-size: 2.25rem;
+  line-height: 2.75rem;
+}
+
+.font40 {
+  font-size: 2.5rem;
+  line-height: 3rem;
+}
+
+.font44 {
+  font-size: 2.75rem;
+  line-height: 3.25rem;
+}
+
+.font48 {
+  font-size: 3rem;
+  line-height: 3.5rem;
+}
+
+.font52 {
+  font-size: 3.25rem;
+  line-height: 3.75rem;
+}
+
+.font56 {
+  font-size: 3.5rem;
+  line-height: 4rem;
+}
+
+.font60 {
+  font-size: 3.75rem;
+  line-height: 4.25rem;
+}
+
+.font64 {
+  font-size: 4rem;
+  line-height: 4.5rem;
+}
+
+/* Tablet devices (768px and up) */
+@media screen and (min-width: 768px) {
+  .font8 {
+    font-size: 0.5rem;
+    line-height: 1rem;
+  }
+
+  .font10 {
+    font-size: 0.625rem;
+    line-height: 1.125rem;
+  }
+
+  .font12 {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+
+  .font14 {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  .font16 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .font18 {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+
+  .font20 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .font24 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .font28 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .font32 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .font36 {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+  }
+
+  .font40 {
+    font-size: 2.5rem;
+    line-height: 3rem;
+  }
+
+  .font44 {
+    font-size: 2.75rem;
+    line-height: 3.25rem;
+  }
+
+  .font48 {
+    font-size: 3rem;
+    line-height: 3.5rem;
+  }
+
+  .font52 {
+    font-size: 3.25rem;
+    line-height: 3.75rem;
+  }
+
+  .font56 {
+    font-size: 3.5rem;
+    line-height: 4rem;
+  }
+
+  .font60 {
+    font-size: 3.75rem;
+    line-height: 4.25rem;
+  }
+
+  .font64 {
+    font-size: 4rem;
+    line-height: 4.5rem;
+  }
+}
+
+/* Desktop devices (1024px and up) */
+@media screen and (min-width: 1024px) {
+  .font8 {
+    font-size: 0.5rem;
+    line-height: 1rem;
+  }
+
+  .font10 {
+    font-size: 0.625rem;
+    line-height: 1.125rem;
+  }
+
+  .font12 {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+
+  .font14 {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  .font16 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .font18 {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+
+  .font20 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .font24 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .font28 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .font32 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .font36 {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+  }
+
+  .font40 {
+    font-size: 2.5rem;
+    line-height: 3rem;
+  }
+
+  .font44 {
+    font-size: 2.75rem;
+    line-height: 3.25rem;
+  }
+
+  .font48 {
+    font-size: 3rem;
+    line-height: 3.5rem;
+  }
+
+  .font52 {
+    font-size: 3.25rem;
+    line-height: 3.75rem;
+  }
+
+  .font56 {
+    font-size: 3.5rem;
+    line-height: 4rem;
+  }
+
+  .font60 {
+    font-size: 3.75rem;
+    line-height: 4.25rem;
+  }
+
+  .font64 {
+    font-size: 4rem;
+    line-height: 4.5rem;
+  }
+}
+
+/* Large desktop devices (1440px and up) */
+@media screen and (min-width: 1440px) {
+  .font8 {
+    font-size: 0.5rem;
+    line-height: 1rem;
+  }
+
+  .font10 {
+    font-size: 0.625rem;
+    line-height: 1.125rem;
+  }
+
+  .font12 {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+
+  .font14 {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  .font16 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .font18 {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+
+  .font20 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .font24 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .font28 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .font32 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .font36 {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+  }
+
+  .font40 {
+    font-size: 2.5rem;
+    line-height: 3rem;
+  }
+
+  .font44 {
+    font-size: 2.75rem;
+    line-height: 3.25rem;
+  }
+
+  .font48 {
+    font-size: 3rem;
+    line-height: 3.5rem;
+  }
+
+  .font52 {
+    font-size: 3.25rem;
+    line-height: 3.75rem;
+  }
+
+  .font56 {
+    font-size: 3.5rem;
+    line-height: 4rem;
+  }
+
+  .font60 {
+    font-size: 3.75rem;
+    line-height: 4.25rem;
+  }
+
+  .font64 {
+    font-size: 4rem;
+    line-height: 4.5rem;
+  }
+}

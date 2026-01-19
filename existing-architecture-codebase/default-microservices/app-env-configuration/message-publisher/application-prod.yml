@@ -1,0 +1,8 @@
+kafka:
+  producer:
+    bootstrap-server: kafka:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://service-registry:8761/eureka/}

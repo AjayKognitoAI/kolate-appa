@@ -1,0 +1,14 @@
+kafka:
+  bootstrap-servers: 10.0.8.57:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+
+zeptomail:
+  api-url: https://api.zeptomail.com/v1.1/email/template
+  api-key: wSsVR61+rB75W651n2eoJ+5qyF1QDluiEkh00AOp7n74HP7KoMcywU3HUASuTaJLGG8/EzIboO8tyUtT1DBb3owow18DWiiF9mqRe1U4J3x17qnvhDzIV2VYkBqNL40IxgVtk2ZnFMor+g==
+  from-address: noreply@kolate.ai
+  bounce-address: test_bounce@kolate.ai
+  invite-enterprise-template-key: 2d6f.368ba3eff3befb24.k1.8b2824b0-2731-11f0-acd4-525400114fe6.196902a627b
