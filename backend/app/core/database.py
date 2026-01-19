@@ -28,7 +28,11 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False
 )
 
-Base = declarative_base()
+class _Base:
+    """Base class with SQLAlchemy 2.0 compatibility for legacy type annotations."""
+    __allow_unmapped__ = True
+
+Base = declarative_base(cls=_Base)
 
 
 def get_db() -> Session:
