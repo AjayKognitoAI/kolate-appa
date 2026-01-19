@@ -1,5 +1,36 @@
 # Import order is important for SQLAlchemy relationships
+
+# Template models (keep existing)
 from .user import User
+
+# Enterprise models (public schema - shared across tenants)
+from .enterprise import (
+    Enterprise, EnterpriseStatus,
+    Admin,
+    EnterpriseDatasource,
+    EnterpriseOnboardingProgress, OnboardingStep,
+    Module, Trial,
+    EnterpriseModuleAccess,
+    SsoTicket,
+)
+
+# Tenant models (org_xxx schemas - tenant-specific)
+from .tenant import (
+    TenantUser, UserStatus,
+    Project, ProjectUser, ProjectStatus,
+    ProjectRole, ProjectPermission, DefaultRole, DefaultPermission,
+    ModuleType, AccessType,
+    Notification, NotificationStatus, NotificationType,
+    TrialShare,
+    UserBookmark,
+)
+
+# MongoDB models (imported but not part of SQLAlchemy)
+# These are Beanie documents for MongoDB
+from .mongo import (
+    PatientRecord, PatientRecordCreate,
+    ExecutionRecord, ExecutionRecordCreate,
+)
 from .user_auth import UserAuth, AuthType
 from .user_session import UserSession
 from .user_media import UserMedia, UserMediaType
@@ -34,6 +65,7 @@ from .portfolio_work import PortfolioWork
 from .portfolio_media import PortfolioMedia
 
 __all__ = [
+    # Template models
     "User", "UserAuth", "UserSession", "UserMedia", "UserMediaType", "AuthType", "Guest", "GuestRole",
     "Feature", "Action", "Permission", "Role", "RolePermission", "UserRole",
     "Homeowner", "ServiceProvider", "Address", "ServiceProviderAddress", "Certification",
@@ -45,8 +77,25 @@ __all__ = [
     "Payment", "PaymentStatus",
     "Dispute", "DisputeStatus",
     "RatingReview",
-
-
     "MasterData", "MasterDataLocale",
-    "PortfolioWork", "PortfolioMedia"
+    "PortfolioWork", "PortfolioMedia",
+    # Enterprise models (public schema)
+    "Enterprise", "EnterpriseStatus",
+    "Admin",
+    "EnterpriseDatasource",
+    "EnterpriseOnboardingProgress", "OnboardingStep",
+    "Module", "Trial",
+    "EnterpriseModuleAccess",
+    "SsoTicket",
+    # Tenant models (org_xxx schemas)
+    "TenantUser", "UserStatus",
+    "Project", "ProjectUser", "ProjectStatus",
+    "ProjectRole", "ProjectPermission", "DefaultRole", "DefaultPermission",
+    "ModuleType", "AccessType",
+    "Notification", "NotificationStatus", "NotificationType",
+    "TrialShare",
+    "UserBookmark",
+    # MongoDB models
+    "PatientRecord", "PatientRecordCreate",
+    "ExecutionRecord", "ExecutionRecordCreate",
 ]
