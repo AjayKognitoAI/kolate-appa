@@ -1,19 +1,34 @@
 """
-Execution Record Service (MongoDB)
+Execution Record Service (MongoDB) - DEPRECATED
 
-CRUD operations for execution/prediction records stored in MongoDB.
+This module is deprecated. Please use:
+    from app.services.patient_records import ExecutionRecordService
+
+The new implementation is located in:
+    app/services/patient_records/execution_record_service.py
 """
 
-from typing import Optional, List, Dict, Any
-from app.core.mongodb import get_collection
-
-# TODO: Implement ExecutionRecordService
-# - create(project_id, trial_slug, execution_data)
-# - get_paginated(project_id, trial_slug, page, size)
-# - get_by_id(project_id, trial_slug, execution_id)
-# - get_batch(project_id, trial_slug, execution_ids)
+import warnings
+from app.services.patient_records.execution_record_service import ExecutionRecordService as NewExecutionRecordService
 
 
-class ExecutionRecordService:
-    """Execution record management service (MongoDB)."""
-    pass
+class ExecutionRecordService(NewExecutionRecordService):
+    """
+    Execution record management service (MongoDB).
+
+    DEPRECATED: This class is maintained for backward compatibility.
+    Use app.services.patient_records.ExecutionRecordService instead.
+    """
+
+    def __init__(self):
+        warnings.warn(
+            "app.services.mongo.ExecutionRecordService is deprecated. "
+            "Use app.services.patient_records.ExecutionRecordService instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        super().__init__()
+
+
+# Re-export for backward compatibility
+__all__ = ["ExecutionRecordService"]

@@ -1,21 +1,34 @@
 """
-Patient Record Service (MongoDB)
+Patient Record Service (MongoDB) - DEPRECATED
 
-CRUD operations for patient records stored in MongoDB.
+This module is deprecated. Please use:
+    from app.services.patient_records import PatientRecordService
+
+The new implementation is located in:
+    app/services/patient_records/patient_record_service.py
 """
 
-from typing import Optional, List, Dict, Any
-from app.core.mongodb import get_collection
-
-# TODO: Implement PatientRecordService
-# - create(project_id, trial_slug, patient_data)
-# - get_all(project_id, trial_slug)
-# - get_paginated(project_id, trial_slug, page, size)
-# - get_by_id(project_id, trial_slug, record_id)
-# - delete(project_id, trial_slug, record_id)
-# - count(project_id, trial_slug)
+import warnings
+from app.services.patient_records.patient_record_service import PatientRecordService as NewPatientRecordService
 
 
-class PatientRecordService:
-    """Patient record management service (MongoDB)."""
-    pass
+class PatientRecordService(NewPatientRecordService):
+    """
+    Patient record management service (MongoDB).
+
+    DEPRECATED: This class is maintained for backward compatibility.
+    Use app.services.patient_records.PatientRecordService instead.
+    """
+
+    def __init__(self):
+        warnings.warn(
+            "app.services.mongo.PatientRecordService is deprecated. "
+            "Use app.services.patient_records.PatientRecordService instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        super().__init__()
+
+
+# Re-export for backward compatibility
+__all__ = ["PatientRecordService"]
