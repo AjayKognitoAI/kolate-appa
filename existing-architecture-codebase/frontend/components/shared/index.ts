@@ -13,7 +13,10 @@
  *   DataState,
  *   DataTable,
  *   TextInput,
- *   SelectInput,
+ *   Breadcrumbs,
+ *   ConfirmDialog,
+ *   StatsCard,
+ *   SkipLinks,
  * } from '@/components/shared';
  * ```
  */
@@ -33,12 +36,7 @@ export {
 } from "./states";
 
 // Data table
-export {
-  DataTable,
-  viewAction,
-  editAction,
-  deleteAction,
-} from "./DataTable";
+export { DataTable, viewAction, editAction, deleteAction } from "./DataTable";
 export type { Column, RowAction } from "./DataTable";
 
 // Form controls
@@ -51,6 +49,35 @@ export {
   FormSection,
   FormRow,
 } from "./FormControls";
+
+// Breadcrumbs
+export { Breadcrumbs } from "./Breadcrumbs";
+
+// Dialog components
+export {
+  BaseDialog,
+  ConfirmDialog,
+  DeleteDialog,
+  SuccessDialog,
+  useConfirmDialog,
+} from "./Dialog";
+
+// Stats cards
+export { StatsCard, MiniStatsCard } from "./StatsCard";
+
+// Accessibility components
+export {
+  SkipLinks,
+  VisuallyHidden,
+  LiveRegion,
+  LoadingAnnouncer,
+  ErrorAnnouncer,
+  FocusManager,
+  Heading,
+  useReducedMotion,
+  useAnnounce,
+  useFocusTrap,
+} from "./Accessibility";
 
 // Card components (re-export existing)
 export { default as BlankCard } from "./BlankCard";
