@@ -47,12 +47,6 @@ class Settings(BaseSettings):
     AUTH0_MGMT_AUDIENCE: Optional[str] = None  # e.g., "https://{domain}/api/v2/"
     AUTH0_SSO_PROFILE_ID: Optional[str] = None  # Self-service SSO profile ID
 
-    # MongoDB Configuration
-    MONGO_URL: str = "mongodb://localhost:27017"
-    MONGO_DATABASE: str = "kolate_db"
-    MONGO_MIN_POOL_SIZE: int = 1
-    MONGO_MAX_POOL_SIZE: int = 10
-
     # Multi-Tenancy Configuration
     ENABLE_MULTI_TENANT: bool = True
     TENANT_HEADER_NAME: str = "org-id"

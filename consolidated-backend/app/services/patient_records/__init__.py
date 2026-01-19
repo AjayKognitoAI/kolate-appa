@@ -1,7 +1,8 @@
 """
 Patient Records Service Package
 
-MongoDB-based services for managing patient records and execution records.
+PostgreSQL-based services for managing patient records and execution records.
+Uses JSONB fields for flexible patient data and prediction results.
 """
 
 from .patient_record_service import PatientRecordService

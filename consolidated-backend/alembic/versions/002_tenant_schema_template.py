@@ -105,6 +105,37 @@ BEGIN
             created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )', schema_name, schema_name);
 
+    -- Patient records table (replaces MongoDB patient_records collection)
+    EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.patient_records (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            project_id UUID NOT NULL REFERENCES %I.projects(id) ON DELETE CASCADE,
+            trial_slug VARCHAR(100) NOT NULL,
+            record_id VARCHAR(255) NOT NULL,
+            patient_data JSONB NOT NULL DEFAULT ''{}''::jsonb,
+            metadata JSONB DEFAULT ''{}''::jsonb,
+            created_by VARCHAR(128),
+            updated_by VARCHAR(128),
+            created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )', schema_name, schema_name);
+
+    -- Execution records table (replaces MongoDB execution_records collection)
+    EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.execution_records (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            execution_id VARCHAR(255) NOT NULL UNIQUE,
+            project_id UUID NOT NULL REFERENCES %I.projects(id) ON DELETE CASCADE,
+            trial_slug VARCHAR(100) NOT NULL,
+            user_id VARCHAR(128) NOT NULL,
+            base_patient_data JSONB NOT NULL DEFAULT ''{}''::jsonb,
+            base_prediction JSONB NOT NULL DEFAULT ''[]''::jsonb,
+            executed_by VARCHAR(128),
+            executed_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            updated_by VARCHAR(128),
+            updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )', schema_name, schema_name);
+
     -- Create indexes
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_projects_status ON %I.projects(status)', tenant_id, schema_name);
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_project_users_project ON %I.project_users(project_id)', tenant_id, schema_name);
@@ -112,6 +143,26 @@ BEGIN
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_bookmarks_user ON %I.bookmarks(user_auth0_id)', tenant_id, schema_name);
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_notifications_user ON %I.notifications(user_auth0_id)', tenant_id, schema_name);
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_notifications_read ON %I.notifications(user_auth0_id, read_at)', tenant_id, schema_name);
+
+    -- Patient records indexes
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_project ON %I.patient_records(project_id)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_trial ON %I.patient_records(trial_slug)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_record_id ON %I.patient_records(record_id)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_project_trial ON %I.patient_records(project_id, trial_slug)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_created ON %I.patient_records(created_at)', tenant_id, schema_name);
+    -- GIN index for JSONB patient_data queries
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_patient_records_data ON %I.patient_records USING GIN (patient_data)', tenant_id, schema_name);
+
+    -- Execution records indexes
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_project ON %I.execution_records(project_id)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_trial ON %I.execution_records(trial_slug)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_user ON %I.execution_records(user_id)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_executed_by ON %I.execution_records(executed_by)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_executed_at ON %I.execution_records(executed_at)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_project_trial ON %I.execution_records(project_id, trial_slug)', tenant_id, schema_name);
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_user_date ON %I.execution_records(user_id, executed_at)', tenant_id, schema_name);
+    -- GIN index for JSONB base_patient_data queries
+    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%s_execution_records_data ON %I.execution_records USING GIN (base_patient_data)', tenant_id, schema_name);
 
 END;
 $$ LANGUAGE plpgsql;

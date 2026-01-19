@@ -1,118 +1,83 @@
 """
-Patient Record Service (MongoDB)
+Patient Record Service (PostgreSQL)
 
-Manages patient records stored in MongoDB collections with multi-tenant support.
-Each project/trial combination has its own collection for patient data.
+Manages patient records stored in PostgreSQL with JSONB fields.
+Supports multi-tenant isolation via schema-based tenancy.
 """
 
 from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime
 from math import ceil
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-import uuid
+from uuid import UUID, uuid4
 
-from app.config.settings import settings
-from app.core.mongodb import get_mongo_database, get_collection_name
-from app.schemas.mongo import (
+from sqlalchemy import select, func, and_, or_, desc, asc
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.tenant.patient_record import PatientRecord
+from app.schemas.patient_record import (
     PatientRecordCreate,
     PatientRecordUpdate,
     PatientRecordResponse,
     PatientRecordSearch,
+    PatientRecordBase,
 )
 from app.exceptions.base import NotFoundError, ValidationError
 
 
 class PatientRecordService:
     """
-    Patient record management service using MongoDB.
+    Patient record management service using PostgreSQL.
 
     Handles CRUD operations for patient records with support for:
     - Pagination and sorting
     - Bulk operations
-    - Flexible field-based search
+    - Flexible JSONB-based search
     - Multi-tenant isolation
     """
 
-    def __init__(self):
-        """Initialize the patient record service."""
-        self.client: Optional[AsyncIOMotorClient] = None
-
-    def _get_collection_name(self, project_id: str, trial_slug: str) -> str:
-        """
-        Generate collection name for patient records.
-
-        Args:
-            project_id: Project identifier
-            trial_slug: Trial slug identifier
-
-        Returns:
-            str: Collection name in format {project_id}_{trial_slug}_patient_records
-        """
-        return get_collection_name(project_id, trial_slug, "patient_records")
-
-    async def _get_collection(
-        self,
-        org_id: str,
-        project_id: str,
-        trial_slug: str
-    ) -> AsyncIOMotorCollection:
-        """
-        Get the MongoDB collection for patient records.
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier
-            trial_slug: Trial slug identifier
-
-        Returns:
-            AsyncIOMotorCollection: The patient records collection
-        """
-        db = await get_mongo_database(org_id)
-        collection_name = self._get_collection_name(project_id, trial_slug)
-        return db[collection_name]
-
     async def create_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
-        record_data: PatientRecordCreate
+        record_data: PatientRecordBase,
+        created_by: Optional[str] = None
     ) -> PatientRecordResponse:
         """
         Create a new patient record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             record_data: Patient record data
+            created_by: Auth0 ID of the creator
 
         Returns:
             PatientRecordResponse: Created patient record
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
         # Generate record_id if not provided
-        record_id = record_data.record_id or str(uuid.uuid4())
+        record_id = record_data.record_id or str(uuid4())
 
-        doc = {
-            "record_id": record_id,
-            "patient_data": record_data.patient_data,
-            "metadata": record_data.metadata or {},
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-        }
+        patient_record = PatientRecord(
+            project_id=project_id,
+            trial_slug=trial_slug,
+            record_id=record_id,
+            patient_data=record_data.patient_data,
+            metadata=record_data.metadata or {},
+            created_by=created_by,
+        )
 
-        result = await collection.insert_one(doc)
-        doc["_id"] = str(result.inserted_id)
+        db.add(patient_record)
+        await db.commit()
+        await db.refresh(patient_record)
 
-        return PatientRecordResponse(**doc)
+        return PatientRecordResponse.model_validate(patient_record)
 
     async def get_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         page: int = 1,
         size: int = 10,
@@ -123,7 +88,7 @@ class PatientRecordService:
         Get paginated patient records.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             page: Page number (1-indexed)
@@ -134,35 +99,46 @@ class PatientRecordService:
         Returns:
             Tuple of (records, total_count, total_pages)
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        # Build base query
+        base_query = select(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug
+            )
+        )
 
-        # Calculate skip
-        skip = (page - 1) * size
-
-        # Determine sort field and direction
-        sort_field = sort_by or "created_at"
-        sort_direction = -1 if sort_order == "desc" else 1
-
-        # Get total count
-        total = await collection.count_documents({})
+        # Count total
+        count_query = select(func.count()).select_from(
+            base_query.subquery()
+        )
+        total_result = await db.execute(count_query)
+        total = total_result.scalar() or 0
         total_pages = ceil(total / size) if total > 0 else 0
 
-        # Query with pagination and sorting
-        cursor = collection.find({}).sort(sort_field, sort_direction).skip(skip).limit(size)
-        documents = await cursor.to_list(length=size)
+        # Apply sorting
+        sort_field = getattr(PatientRecord, sort_by or "created_at", PatientRecord.created_at)
+        if sort_order == "desc":
+            base_query = base_query.order_by(desc(sort_field))
+        else:
+            base_query = base_query.order_by(asc(sort_field))
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(PatientRecordResponse(**doc))
+        # Apply pagination
+        offset = (page - 1) * size
+        base_query = base_query.offset(offset).limit(size)
 
-        return records, total, total_pages
+        result = await db.execute(base_query)
+        records = result.scalars().all()
+
+        return (
+            [PatientRecordResponse.model_validate(r) for r in records],
+            total,
+            total_pages
+        )
 
     async def get_all_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str
     ) -> List[PatientRecordResponse]:
         """
@@ -171,29 +147,29 @@ class PatientRecordService:
         Warning: Use with caution for large datasets.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
 
         Returns:
             List[PatientRecordResponse]: All patient records
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug
+            )
+        ).order_by(desc(PatientRecord.created_at))
 
-        cursor = collection.find({}).sort("created_at", -1)
-        documents = await cursor.to_list(length=None)
+        result = await db.execute(query)
+        records = result.scalars().all()
 
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(PatientRecordResponse(**doc))
-
-        return records
+        return [PatientRecordResponse.model_validate(r) for r in records]
 
     async def get_record_by_id(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         record_id: str
     ) -> PatientRecordResponse:
@@ -201,7 +177,7 @@ class PatientRecordService:
         Get a patient record by its record_id.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             record_id: Record identifier
@@ -212,37 +188,77 @@ class PatientRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug,
+                PatientRecord.record_id == record_id
+            )
+        )
 
-        doc = await collection.find_one({"record_id": record_id})
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
 
-        if not doc:
+        if not record:
             raise NotFoundError(
                 message=f"Patient record not found with record_id: {record_id}",
                 resource_type="PatientRecord",
                 resource_id=record_id
             )
 
-        doc["_id"] = str(doc["_id"])
-        return PatientRecordResponse(**doc)
+        return PatientRecordResponse.model_validate(record)
+
+    async def get_record_by_uuid(
+        self,
+        db: AsyncSession,
+        record_uuid: UUID
+    ) -> PatientRecordResponse:
+        """
+        Get a patient record by its UUID.
+
+        Args:
+            db: Database session (tenant-scoped)
+            record_uuid: Record UUID
+
+        Returns:
+            PatientRecordResponse: Patient record
+
+        Raises:
+            NotFoundError: If record not found
+        """
+        query = select(PatientRecord).where(PatientRecord.id == record_uuid)
+
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
+
+        if not record:
+            raise NotFoundError(
+                message=f"Patient record not found with id: {record_uuid}",
+                resource_type="PatientRecord",
+                resource_id=str(record_uuid)
+            )
+
+        return PatientRecordResponse.model_validate(record)
 
     async def update_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         record_id: str,
-        update_data: PatientRecordUpdate
+        update_data: PatientRecordUpdate,
+        updated_by: Optional[str] = None
     ) -> PatientRecordResponse:
         """
         Update a patient record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             record_id: Record identifier
             update_data: Updated patient record data
+            updated_by: Auth0 ID of the updater
 
         Returns:
             PatientRecordResponse: Updated patient record
@@ -250,38 +266,43 @@ class PatientRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
-        # Build update document
-        update_doc = {"updated_at": datetime.utcnow()}
-
-        if update_data.patient_data is not None:
-            update_doc["patient_data"] = update_data.patient_data
-
-        if update_data.metadata is not None:
-            update_doc["metadata"] = update_data.metadata
-
-        # Update the record
-        result = await collection.find_one_and_update(
-            {"record_id": record_id},
-            {"$set": update_doc},
-            return_document=True
+        query = select(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug,
+                PatientRecord.record_id == record_id
+            )
         )
 
-        if not result:
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
+
+        if not record:
             raise NotFoundError(
                 message=f"Patient record not found with record_id: {record_id}",
                 resource_type="PatientRecord",
                 resource_id=record_id
             )
 
-        result["_id"] = str(result["_id"])
-        return PatientRecordResponse(**result)
+        # Update fields
+        if update_data.patient_data is not None:
+            record.patient_data = update_data.patient_data
+
+        if update_data.metadata is not None:
+            record.metadata = update_data.metadata
+
+        record.updated_by = updated_by
+        record.updated_at = datetime.utcnow()
+
+        await db.commit()
+        await db.refresh(record)
+
+        return PatientRecordResponse.model_validate(record)
 
     async def delete_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         record_id: str
     ) -> bool:
@@ -289,7 +310,7 @@ class PatientRecordService:
         Delete a patient record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             record_id: Record identifier
@@ -300,34 +321,46 @@ class PatientRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug,
+                PatientRecord.record_id == record_id
+            )
+        )
 
-        result = await collection.delete_one({"record_id": record_id})
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
 
-        if result.deleted_count == 0:
+        if not record:
             raise NotFoundError(
                 message=f"Patient record not found with record_id: {record_id}",
                 resource_type="PatientRecord",
                 resource_id=record_id
             )
 
+        await db.delete(record)
+        await db.commit()
+
         return True
 
     async def bulk_create_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
-        records: List[PatientRecordCreate]
+        records: List[PatientRecordBase],
+        created_by: Optional[str] = None
     ) -> List[PatientRecordResponse]:
         """
         Bulk create patient records.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             records: List of patient records to create
+            created_by: Auth0 ID of the creator
 
         Returns:
             List[PatientRecordResponse]: Created patient records
@@ -341,36 +374,32 @@ class PatientRecordService:
                 field="records"
             )
 
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        patient_records = []
+        for record_data in records:
+            record_id = record_data.record_id or str(uuid4())
+            patient_record = PatientRecord(
+                project_id=project_id,
+                trial_slug=trial_slug,
+                record_id=record_id,
+                patient_data=record_data.patient_data,
+                metadata=record_data.metadata or {},
+                created_by=created_by,
+            )
+            patient_records.append(patient_record)
+            db.add(patient_record)
 
-        # Prepare documents
-        now = datetime.utcnow()
-        documents = []
-        for record in records:
-            record_id = record.record_id or str(uuid.uuid4())
-            doc = {
-                "record_id": record_id,
-                "patient_data": record.patient_data,
-                "metadata": record.metadata or {},
-                "created_at": now,
-                "updated_at": now,
-            }
-            documents.append(doc)
+        await db.commit()
 
-        # Bulk insert
-        result = await collection.insert_many(documents)
+        # Refresh all records
+        for record in patient_records:
+            await db.refresh(record)
 
-        # Update documents with inserted IDs
-        for doc, inserted_id in zip(documents, result.inserted_ids):
-            doc["_id"] = str(inserted_id)
-
-        # Convert to response models
-        return [PatientRecordResponse(**doc) for doc in documents]
+        return [PatientRecordResponse.model_validate(r) for r in patient_records]
 
     async def search_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         search_params: PatientRecordSearch,
         page: int = 1,
@@ -380,7 +409,7 @@ class PatientRecordService:
         Search patient records with flexible filtering.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             search_params: Search parameters
@@ -390,55 +419,80 @@ class PatientRecordService:
         Returns:
             Tuple of (records, total_count, total_pages)
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
-        # Build query
-        query: Dict[str, Any] = {}
+        # Build base query
+        conditions = [
+            PatientRecord.project_id == project_id,
+            PatientRecord.trial_slug == trial_slug
+        ]
 
         if search_params.record_id:
-            query["record_id"] = search_params.record_id
+            conditions.append(PatientRecord.record_id == search_params.record_id)
 
+        # JSONB-based filtering
         if search_params.filters:
-            # Add flexible field-based filters
-            # Support nested field queries like "patient_data.age": 25
             for field, value in search_params.filters.items():
-                query[field] = value
+                # Support nested JSONB queries like "patient_data.age"
+                if "." in field:
+                    parts = field.split(".", 1)
+                    if parts[0] == "patient_data":
+                        conditions.append(
+                            PatientRecord.patient_data[parts[1]].astext == str(value)
+                        )
+                    elif parts[0] == "metadata":
+                        conditions.append(
+                            PatientRecord.metadata[parts[1]].astext == str(value)
+                        )
+                else:
+                    # Top-level patient_data field
+                    conditions.append(
+                        PatientRecord.patient_data[field].astext == str(value)
+                    )
 
-        # Calculate skip
-        skip = (page - 1) * size
+        base_query = select(PatientRecord).where(and_(*conditions))
 
-        # Get total count
-        total = await collection.count_documents(query)
+        # Count total
+        count_query = select(func.count()).select_from(base_query.subquery())
+        total_result = await db.execute(count_query)
+        total = total_result.scalar() or 0
         total_pages = ceil(total / size) if total > 0 else 0
 
-        # Query with pagination
-        cursor = collection.find(query).sort("created_at", -1).skip(skip).limit(size)
-        documents = await cursor.to_list(length=size)
+        # Apply sorting and pagination
+        base_query = base_query.order_by(desc(PatientRecord.created_at))
+        offset = (page - 1) * size
+        base_query = base_query.offset(offset).limit(size)
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(PatientRecordResponse(**doc))
+        result = await db.execute(base_query)
+        records = result.scalars().all()
 
-        return records, total, total_pages
+        return (
+            [PatientRecordResponse.model_validate(r) for r in records],
+            total,
+            total_pages
+        )
 
     async def count_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str
     ) -> int:
         """
         Get total count of patient records.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
 
         Returns:
             int: Total count of records
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-        return await collection.count_documents({})
+        query = select(func.count()).select_from(PatientRecord).where(
+            and_(
+                PatientRecord.project_id == project_id,
+                PatientRecord.trial_slug == trial_slug
+            )
+        )
+
+        result = await db.execute(query)
+        return result.scalar() or 0

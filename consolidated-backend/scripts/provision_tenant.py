@@ -2,12 +2,12 @@
 """
 Tenant Provisioning Script
 
-Creates a new tenant schema in PostgreSQL and optionally
-sets up the MongoDB database for the tenant.
+Creates a new tenant schema in PostgreSQL for multi-tenant isolation.
 
 Usage:
     python scripts/provision_tenant.py <org_id>
-    python scripts/provision_tenant.py <org_id> --with-mongo
+    python scripts/provision_tenant.py --list
+    python scripts/provision_tenant.py <org_id> --delete --confirm
 """
 
 import asyncio
@@ -86,54 +86,6 @@ async def create_postgres_tenant_schema(database_url: str, org_id: str):
     await engine.dispose()
 
 
-async def create_mongo_tenant_database(mongo_uri: str, org_id: str):
-    """
-    Create a MongoDB database for the tenant.
-
-    Args:
-        mongo_uri: MongoDB connection URI
-        org_id: Organization ID for the new tenant
-    """
-    try:
-        from motor.motor_asyncio import AsyncIOMotorClient
-    except ImportError:
-        print("Warning: motor not installed. Skipping MongoDB setup.")
-        return False
-
-    database_name = f"kolate_{org_id}"
-    print(f"\nCreating MongoDB database for tenant: {database_name}")
-
-    client = AsyncIOMotorClient(mongo_uri)
-
-    try:
-        # Test connection
-        await client.admin.command('ping')
-
-        db = client[database_name]
-
-        # Create metadata collection
-        await db.create_collection("_metadata")
-        metadata = db["_metadata"]
-
-        from datetime import datetime
-        await metadata.insert_one({
-            "org_id": org_id,
-            "created_at": datetime.utcnow(),
-            "version": "1.0",
-            "collections": []
-        })
-
-        print(f"Successfully created MongoDB database: {database_name}")
-        return True
-
-    except Exception as e:
-        print(f"Error creating MongoDB database: {e}")
-        raise
-
-    finally:
-        client.close()
-
-
 async def list_tenants(database_url: str):
     """List all existing tenant schemas."""
     print("\nExisting tenant schemas:")
@@ -206,9 +158,6 @@ Examples:
     # Create a new tenant
     python scripts/provision_tenant.py abc123
 
-    # Create tenant with MongoDB database
-    python scripts/provision_tenant.py abc123 --with-mongo
-
     # List all tenants
     python scripts/provision_tenant.py --list
 
@@ -226,16 +175,6 @@ Examples:
         "--database-url",
         default=os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/kolate_db"),
         help="PostgreSQL connection URL"
-    )
-    parser.add_argument(
-        "--mongo-uri",
-        default=os.getenv("MONGODB_URI", "mongodb://localhost:27017"),
-        help="MongoDB connection URI"
-    )
-    parser.add_argument(
-        "--with-mongo",
-        action="store_true",
-        help="Also create MongoDB database for the tenant"
     )
     parser.add_argument(
         "--list",
@@ -267,9 +206,6 @@ Examples:
     else:
         # Create tenant
         asyncio.run(create_postgres_tenant_schema(args.database_url, args.org_id))
-
-        if args.with_mongo:
-            asyncio.run(create_mongo_tenant_database(args.mongo_uri, args.org_id))
 
 
 if __name__ == "__main__":

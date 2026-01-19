@@ -12,6 +12,8 @@ Models stored in tenant-specific schemas (org_xxx):
 - Notification: User notifications
 - TrialShare: Trial sharing records
 - UserBookmark: User bookmarks
+- PatientRecord: Clinical patient data records
+- ExecutionRecord: ML prediction/execution records
 """
 
 from app.models.tenant.user import TenantUser, UserStatus
@@ -31,6 +33,7 @@ from app.models.tenant.notification import (
 )
 from app.models.tenant.sharing import TrialShare
 from app.models.tenant.bookmark import UserBookmark
+from app.models.tenant.patient_record import PatientRecord, ExecutionRecord
 
 __all__ = [
     # User
@@ -55,4 +58,7 @@ __all__ = [
     "TrialShare",
     # Bookmark
     "UserBookmark",
+    # Patient & Execution Records
+    "PatientRecord",
+    "ExecutionRecord",
 ]

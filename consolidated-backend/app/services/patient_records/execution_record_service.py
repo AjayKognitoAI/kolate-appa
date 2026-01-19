@@ -1,20 +1,20 @@
 """
-Execution Record Service (MongoDB)
+Execution Record Service (PostgreSQL)
 
-Manages execution/prediction records stored in MongoDB collections with multi-tenant support.
-Tracks model executions and predictions for each project/trial combination.
+Manages execution/prediction records stored in PostgreSQL with JSONB fields.
+Supports multi-tenant isolation via schema-based tenancy.
 """
 
 from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime
 from math import ceil
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-import uuid
+from uuid import UUID, uuid4
 
-from app.config.settings import settings
-from app.core.mongodb import get_mongo_database, get_collection_name
-from app.schemas.mongo import (
+from sqlalchemy import select, func, and_, or_, desc, asc
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.tenant.patient_record import ExecutionRecord
+from app.schemas.patient_record import (
     ExecutionRecordCreate,
     ExecutionRecordUpdate,
     ExecutionRecordResponse,
@@ -25,7 +25,7 @@ from app.exceptions.base import NotFoundError, ValidationError
 
 class ExecutionRecordService:
     """
-    Execution record management service using MongoDB.
+    Execution record management service using PostgreSQL.
 
     Handles CRUD operations for execution/prediction records with support for:
     - User-specific record tracking
@@ -35,48 +35,10 @@ class ExecutionRecordService:
     - Multi-tenant isolation
     """
 
-    def __init__(self):
-        """Initialize the execution record service."""
-        self.client: Optional[AsyncIOMotorClient] = None
-
-    def _get_collection_name(self, project_id: str, trial_slug: str) -> str:
-        """
-        Generate collection name for execution records.
-
-        Args:
-            project_id: Project identifier
-            trial_slug: Trial slug identifier
-
-        Returns:
-            str: Collection name in format {project_id}_{trial_slug}_prediction_results
-        """
-        return get_collection_name(project_id, trial_slug, "prediction_results")
-
-    async def _get_collection(
-        self,
-        org_id: str,
-        project_id: str,
-        trial_slug: str
-    ) -> AsyncIOMotorCollection:
-        """
-        Get the MongoDB collection for execution records.
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier
-            trial_slug: Trial slug identifier
-
-        Returns:
-            AsyncIOMotorCollection: The execution records collection
-        """
-        db = await get_mongo_database(org_id)
-        collection_name = self._get_collection_name(project_id, trial_slug)
-        return db[collection_name]
-
     async def create_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         record_data: ExecutionRecordCreate,
         current_user: str
@@ -85,7 +47,7 @@ class ExecutionRecordService:
         Create a new execution record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             record_data: Execution record data
@@ -94,32 +56,29 @@ class ExecutionRecordService:
         Returns:
             ExecutionRecordResponse: Created execution record
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
         # Generate execution_id
-        execution_id = str(uuid.uuid4())
-        now = datetime.utcnow()
+        execution_id = str(uuid4())
 
-        doc = {
-            "execution_id": execution_id,
-            "user_id": record_data.user_id,
-            "base_patient_data": record_data.base_patient_data,
-            "base_prediction": record_data.base_prediction,
-            "executed_by": record_data.executed_by or current_user,
-            "executed_at": now,
-            "updated_by": None,
-            "updated_at": now,
-        }
+        execution_record = ExecutionRecord(
+            execution_id=execution_id,
+            project_id=project_id,
+            trial_slug=trial_slug,
+            user_id=record_data.user_id,
+            base_patient_data=record_data.base_patient_data,
+            base_prediction=record_data.base_prediction,
+            executed_by=record_data.executed_by or current_user,
+        )
 
-        result = await collection.insert_one(doc)
-        doc["_id"] = str(result.inserted_id)
+        db.add(execution_record)
+        await db.commit()
+        await db.refresh(execution_record)
 
-        return ExecutionRecordResponse(**doc)
+        return ExecutionRecordResponse.model_validate(execution_record)
 
     async def get_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         page: int = 1,
         size: int = 10,
@@ -130,7 +89,7 @@ class ExecutionRecordService:
         Get paginated execution records.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             page: Page number (1-indexed)
@@ -141,35 +100,44 @@ class ExecutionRecordService:
         Returns:
             Tuple of (records, total_count, total_pages)
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        # Build base query
+        base_query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug
+            )
+        )
 
-        # Calculate skip
-        skip = (page - 1) * size
-
-        # Determine sort field and direction
-        sort_field = sort_by or "executed_at"
-        sort_direction = -1 if sort_order == "desc" else 1
-
-        # Get total count
-        total = await collection.count_documents({})
+        # Count total
+        count_query = select(func.count()).select_from(base_query.subquery())
+        total_result = await db.execute(count_query)
+        total = total_result.scalar() or 0
         total_pages = ceil(total / size) if total > 0 else 0
 
-        # Query with pagination and sorting
-        cursor = collection.find({}).sort(sort_field, sort_direction).skip(skip).limit(size)
-        documents = await cursor.to_list(length=size)
+        # Apply sorting
+        sort_field = getattr(ExecutionRecord, sort_by or "executed_at", ExecutionRecord.executed_at)
+        if sort_order == "desc":
+            base_query = base_query.order_by(desc(sort_field))
+        else:
+            base_query = base_query.order_by(asc(sort_field))
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(ExecutionRecordResponse(**doc))
+        # Apply pagination
+        offset = (page - 1) * size
+        base_query = base_query.offset(offset).limit(size)
 
-        return records, total, total_pages
+        result = await db.execute(base_query)
+        records = result.scalars().all()
+
+        return (
+            [ExecutionRecordResponse.model_validate(r) for r in records],
+            total,
+            total_pages
+        )
 
     async def get_record_by_id(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         execution_id: str
     ) -> ExecutionRecordResponse:
@@ -177,7 +145,7 @@ class ExecutionRecordService:
         Get an execution record by its execution_id.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             execution_id: Execution identifier
@@ -188,24 +156,62 @@ class ExecutionRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug,
+                ExecutionRecord.execution_id == execution_id
+            )
+        )
 
-        doc = await collection.find_one({"execution_id": execution_id})
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
 
-        if not doc:
+        if not record:
             raise NotFoundError(
                 message=f"Execution record not found with execution_id: {execution_id}",
                 resource_type="ExecutionRecord",
                 resource_id=execution_id
             )
 
-        doc["_id"] = str(doc["_id"])
-        return ExecutionRecordResponse(**doc)
+        return ExecutionRecordResponse.model_validate(record)
+
+    async def get_record_by_uuid(
+        self,
+        db: AsyncSession,
+        record_uuid: UUID
+    ) -> ExecutionRecordResponse:
+        """
+        Get an execution record by its UUID.
+
+        Args:
+            db: Database session (tenant-scoped)
+            record_uuid: Record UUID
+
+        Returns:
+            ExecutionRecordResponse: Execution record
+
+        Raises:
+            NotFoundError: If record not found
+        """
+        query = select(ExecutionRecord).where(ExecutionRecord.id == record_uuid)
+
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
+
+        if not record:
+            raise NotFoundError(
+                message=f"Execution record not found with id: {record_uuid}",
+                resource_type="ExecutionRecord",
+                resource_id=str(record_uuid)
+            )
+
+        return ExecutionRecordResponse.model_validate(record)
 
     async def update_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         execution_id: str,
         update_data: ExecutionRecordUpdate,
@@ -215,7 +221,7 @@ class ExecutionRecordService:
         Update an execution record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             execution_id: Execution identifier
@@ -228,41 +234,43 @@ class ExecutionRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
-        # Build update document
-        update_doc = {
-            "updated_at": datetime.utcnow(),
-            "updated_by": update_data.updated_by or current_user
-        }
-
-        if update_data.base_patient_data is not None:
-            update_doc["base_patient_data"] = update_data.base_patient_data
-
-        if update_data.base_prediction is not None:
-            update_doc["base_prediction"] = update_data.base_prediction
-
-        # Update the record
-        result = await collection.find_one_and_update(
-            {"execution_id": execution_id},
-            {"$set": update_doc},
-            return_document=True
+        query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug,
+                ExecutionRecord.execution_id == execution_id
+            )
         )
 
-        if not result:
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
+
+        if not record:
             raise NotFoundError(
                 message=f"Execution record not found with execution_id: {execution_id}",
                 resource_type="ExecutionRecord",
                 resource_id=execution_id
             )
 
-        result["_id"] = str(result["_id"])
-        return ExecutionRecordResponse(**result)
+        # Update fields
+        if update_data.base_patient_data is not None:
+            record.base_patient_data = update_data.base_patient_data
+
+        if update_data.base_prediction is not None:
+            record.base_prediction = update_data.base_prediction
+
+        record.updated_by = update_data.updated_by or current_user
+        record.updated_at = datetime.utcnow()
+
+        await db.commit()
+        await db.refresh(record)
+
+        return ExecutionRecordResponse.model_validate(record)
 
     async def get_records_by_ids(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         execution_ids: List[str]
     ) -> List[ExecutionRecordResponse]:
@@ -270,7 +278,7 @@ class ExecutionRecordService:
         Get multiple execution records by their IDs.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             execution_ids: List of execution identifiers
@@ -281,24 +289,23 @@ class ExecutionRecordService:
         if not execution_ids:
             return []
 
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug,
+                ExecutionRecord.execution_id.in_(execution_ids)
+            )
+        )
 
-        # Query for records matching any of the execution IDs
-        cursor = collection.find({"execution_id": {"$in": execution_ids}})
-        documents = await cursor.to_list(length=None)
+        result = await db.execute(query)
+        records = result.scalars().all()
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(ExecutionRecordResponse(**doc))
-
-        return records
+        return [ExecutionRecordResponse.model_validate(r) for r in records]
 
     async def search_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         search_params: ExecutionRecordSearch,
         page: int = 1,
@@ -308,7 +315,7 @@ class ExecutionRecordService:
         Search execution records with flexible filtering.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             search_params: Search parameters
@@ -318,54 +325,54 @@ class ExecutionRecordService:
         Returns:
             Tuple of (records, total_count, total_pages)
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
-
-        # Build query
-        query: Dict[str, Any] = {}
+        # Build query conditions
+        conditions = [
+            ExecutionRecord.project_id == project_id,
+            ExecutionRecord.trial_slug == trial_slug
+        ]
 
         if search_params.user_id:
-            query["user_id"] = search_params.user_id
+            conditions.append(ExecutionRecord.user_id == search_params.user_id)
 
         if search_params.executed_by:
-            query["executed_by"] = search_params.executed_by
+            conditions.append(ExecutionRecord.executed_by == search_params.executed_by)
 
         # Date range filtering
-        if search_params.date_from or search_params.date_to:
-            date_query: Dict[str, Any] = {}
-            if search_params.date_from:
-                date_query["$gte"] = search_params.date_from
-            if search_params.date_to:
-                date_query["$lte"] = search_params.date_to
-            query["executed_at"] = date_query
+        if search_params.date_from:
+            conditions.append(ExecutionRecord.executed_at >= search_params.date_from)
 
-        # Calculate skip
-        skip = (page - 1) * size
+        if search_params.date_to:
+            conditions.append(ExecutionRecord.executed_at <= search_params.date_to)
 
-        # Get total count
-        total = await collection.count_documents(query)
+        base_query = select(ExecutionRecord).where(and_(*conditions))
+
+        # Count total
+        count_query = select(func.count()).select_from(base_query.subquery())
+        total_result = await db.execute(count_query)
+        total = total_result.scalar() or 0
         total_pages = ceil(total / size) if total > 0 else 0
 
-        # Query with pagination and sorting
-        cursor = (
-            collection.find(query)
-            .sort([("executed_at", -1), ("updated_at", -1)])
-            .skip(skip)
-            .limit(size)
+        # Apply sorting and pagination
+        base_query = base_query.order_by(
+            desc(ExecutionRecord.executed_at),
+            desc(ExecutionRecord.updated_at)
         )
-        documents = await cursor.to_list(length=size)
+        offset = (page - 1) * size
+        base_query = base_query.offset(offset).limit(size)
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(ExecutionRecordResponse(**doc))
+        result = await db.execute(base_query)
+        records = result.scalars().all()
 
-        return records, total, total_pages
+        return (
+            [ExecutionRecordResponse.model_validate(r) for r in records],
+            total,
+            total_pages
+        )
 
     async def get_user_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         user_id: str,
         page: int = 1,
@@ -375,7 +382,7 @@ class ExecutionRecordService:
         Get paginated execution records for a specific user.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             user_id: User identifier (Auth0 ID)
@@ -385,39 +392,41 @@ class ExecutionRecordService:
         Returns:
             Tuple of (records, total_count, total_pages)
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        base_query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug,
+                ExecutionRecord.user_id == user_id
+            )
+        )
 
-        # Build query for user
-        query = {"user_id": user_id}
-
-        # Calculate skip
-        skip = (page - 1) * size
-
-        # Get total count
-        total = await collection.count_documents(query)
+        # Count total
+        count_query = select(func.count()).select_from(base_query.subquery())
+        total_result = await db.execute(count_query)
+        total = total_result.scalar() or 0
         total_pages = ceil(total / size) if total > 0 else 0
 
-        # Query with pagination and sorting by execution date
-        cursor = (
-            collection.find(query)
-            .sort([("executed_at", -1), ("updated_at", -1)])
-            .skip(skip)
-            .limit(size)
+        # Apply sorting and pagination
+        base_query = base_query.order_by(
+            desc(ExecutionRecord.executed_at),
+            desc(ExecutionRecord.updated_at)
         )
-        documents = await cursor.to_list(length=size)
+        offset = (page - 1) * size
+        base_query = base_query.offset(offset).limit(size)
 
-        # Convert to response models
-        records = []
-        for doc in documents:
-            doc["_id"] = str(doc["_id"])
-            records.append(ExecutionRecordResponse(**doc))
+        result = await db.execute(base_query)
+        records = result.scalars().all()
 
-        return records, total, total_pages
+        return (
+            [ExecutionRecordResponse.model_validate(r) for r in records],
+            total,
+            total_pages
+        )
 
     async def count_records(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         user_id: Optional[str] = None
     ) -> int:
@@ -425,7 +434,7 @@ class ExecutionRecordService:
         Get total count of execution records, optionally filtered by user.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             user_id: Optional user identifier to filter by
@@ -433,18 +442,23 @@ class ExecutionRecordService:
         Returns:
             int: Total count of records
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        conditions = [
+            ExecutionRecord.project_id == project_id,
+            ExecutionRecord.trial_slug == trial_slug
+        ]
 
-        query = {}
         if user_id:
-            query["user_id"] = user_id
+            conditions.append(ExecutionRecord.user_id == user_id)
 
-        return await collection.count_documents(query)
+        query = select(func.count()).select_from(ExecutionRecord).where(and_(*conditions))
+
+        result = await db.execute(query)
+        return result.scalar() or 0
 
     async def delete_record(
         self,
-        org_id: str,
-        project_id: str,
+        db: AsyncSession,
+        project_id: UUID,
         trial_slug: str,
         execution_id: str
     ) -> bool:
@@ -452,7 +466,7 @@ class ExecutionRecordService:
         Delete an execution record.
 
         Args:
-            org_id: Organization identifier
+            db: Database session (tenant-scoped)
             project_id: Project identifier
             trial_slug: Trial slug identifier
             execution_id: Execution identifier
@@ -463,15 +477,25 @@ class ExecutionRecordService:
         Raises:
             NotFoundError: If record not found
         """
-        collection = await self._get_collection(org_id, project_id, trial_slug)
+        query = select(ExecutionRecord).where(
+            and_(
+                ExecutionRecord.project_id == project_id,
+                ExecutionRecord.trial_slug == trial_slug,
+                ExecutionRecord.execution_id == execution_id
+            )
+        )
 
-        result = await collection.delete_one({"execution_id": execution_id})
+        result = await db.execute(query)
+        record = result.scalar_one_or_none()
 
-        if result.deleted_count == 0:
+        if not record:
             raise NotFoundError(
                 message=f"Execution record not found with execution_id: {execution_id}",
                 resource_type="ExecutionRecord",
                 resource_id=execution_id
             )
+
+        await db.delete(record)
+        await db.commit()
 
         return True
