@@ -5,6 +5,7 @@ import NextTopLoader from "nextjs-toploader";
 import MyApp from "./app";
 import { SessionProvider } from "next-auth/react";
 import { ToastContainer } from "react-toastify";
+import UserWayWidget from "@/components/shared/UserWayWidget";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/globals.css";
 import "../styles/theme.css";
@@ -40,6 +41,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* UserWay Accessibility Widget - only loads if account ID is configured */}
+        {process.env.NEXT_PUBLIC_USERWAY_ACCOUNT_ID && (
+          <UserWayWidget
+            accountId={process.env.NEXT_PUBLIC_USERWAY_ACCOUNT_ID}
+          />
+        )}
         <NextTopLoader color="#1e4db7" showSpinner={false} />
         <SessionProvider>
           <CustomizerContextProvider>
