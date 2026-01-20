@@ -14,6 +14,7 @@ Models stored in tenant-specific schemas (org_xxx):
 - UserBookmark: User bookmarks
 - PatientRecord: Clinical patient data records
 - ExecutionRecord: ML prediction/execution records
+- Patient Screening: Study, MasterData, Cohort, Filter, Comparison, Activity
 """
 
 from app.models.tenant.user import TenantUser, UserStatus
@@ -34,6 +35,19 @@ from app.models.tenant.notification import (
 from app.models.tenant.sharing import TrialShare
 from app.models.tenant.bookmark import UserBookmark
 from app.models.tenant.patient_record import PatientRecord, ExecutionRecord
+
+# Patient Screening Models
+from app.models.tenant.patient_screening import (
+    Study,
+    StudyStatus,
+    MasterData,
+    Cohort,
+    Filter,
+    CohortComparison,
+    StudyActivity,
+    EntityType,
+    ActivityAction,
+)
 
 __all__ = [
     # User
@@ -61,4 +75,14 @@ __all__ = [
     # Patient & Execution Records
     "PatientRecord",
     "ExecutionRecord",
+    # Patient Screening
+    "Study",
+    "StudyStatus",
+    "MasterData",
+    "Cohort",
+    "Filter",
+    "CohortComparison",
+    "StudyActivity",
+    "EntityType",
+    "ActivityAction",
 ]

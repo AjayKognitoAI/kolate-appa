@@ -29,6 +29,7 @@ from .enterprises.admins import router as enterprise_admins_router
 from .enterprises.modules import router as enterprise_modules_router
 from .enterprises.onboarding import router as enterprise_onboarding_router
 from .enterprises.trials import router as trials_router
+from .enterprises.invite import router as enterprise_invite_router
 
 # Project routes (tenant schema)
 from .projects.projects import router as projects_router
@@ -45,6 +46,9 @@ from .assets.uploads import router as uploads_router
 # Supporting routes
 from .bookmarks import router as bookmarks_router
 from .notifications import router as notifications_router
+
+# Patient Screening routes (tenant schema with S3/LLM)
+from .patient_screening import router as patient_screening_router
 
 from app.config.settings import settings
 
@@ -119,6 +123,11 @@ api_router.include_router(
     tags=["enterprise-onboarding"]
 )
 api_router.include_router(
+    enterprise_invite_router,
+    prefix="/enterprises",
+    tags=["enterprise-invite"]
+)
+api_router.include_router(
     trials_router,
     prefix="/trials",
     tags=["trials"]
@@ -170,6 +179,13 @@ api_router.include_router(
     notifications_router,
     prefix="/notifications",
     tags=["notifications"]
+)
+
+# Patient Screening Routes (tenant schema with S3/LLM integration)
+api_router.include_router(
+    patient_screening_router,
+    prefix="/patient-screening",
+    tags=["patient-screening"]
 )
 
 

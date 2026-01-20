@@ -28,31 +28,34 @@ export const API_CONFIG = {
     PATIENT_ENROLLMENT: "/api/patient-screening/v1",
   },
 
-  // Enterprise Manager Endpoints
+  // Enterprise Manager Endpoints (migrated to FastAPI)
   ENTERPRISE_MANAGER: {
-    // Organizations
-    ORGANIZATION_INVITE: "/api/enterprise-manager/v1/organization/invite",
-    ORGANIZATION_RE_INVITE: "/api/enterprise-manager/v1/organization/re-invite",
-    ORGANIZATION_ONBOARD: "/external/enterprise-manager/v1/organization/onboard",
+    // Organizations - Invite/Onboard endpoints
+    ORGANIZATION_INVITE: "/api/v1/enterprises/organization/invite",
+    ORGANIZATION_RE_INVITE: "/api/v1/enterprises/organization/re-invite",
+    ORGANIZATION_ONBOARD: "/api/v1/enterprises/external/organization/onboard",
 
-    // Enterprises
-    ENTERPRISES: "/api/enterprise-manager/v1/enterprises",
-    ENTERPRISES_SEARCH: "/api/enterprise-manager/v1/enterprises/search",
-    ENTERPRISES_STATS: "/api/enterprise-manager/v1/enterprises/stats",
-    ENTERPRISES_DELETE_REQUEST: "/api/enterprise-manager/v1/enterprises/delete-request",
-    ENTERPRISE_STATISTICS: "/api/enterprise-manager/v1/enterprise/statistics",
+    // Enterprises CRUD
+    ENTERPRISES: "/api/v1/enterprises",
+    ENTERPRISES_SEARCH: "/api/v1/enterprises/search",
+    ENTERPRISES_STATS: "/api/v1/enterprises/stats",
+    ENTERPRISES_DELETE_REQUEST: "/api/v1/enterprises/delete-request",
+    ENTERPRISE_STATISTICS: "/api/v1/enterprises/stats",
 
-    // Onboarding
-    ONBOARDING_PROGRESS: "/api/enterprise-manager/v1/onboarding-progress",
+    // Onboarding (token-based external endpoints)
+    ONBOARDING_PROGRESS: "/api/v1/enterprises",  // /{enterprise_id}/onboarding
+    ONBOARDING_EXTERNAL: "/api/v1/enterprises/external/onboarding",  // /{token}
+    ONBOARDING_STEP: "/api/v1/enterprises/external/onboarding",  // /{token}/step
+    ONBOARDING_COMPLETE: "/api/v1/enterprises/external/onboarding",  // /{token}/complete
 
     // Trials
-    TRIALS: "/api/enterprise-manager/v1/trials",
-    TRIALS_BY_SLUG: "/api/enterprise-manager/v1/trials/slug",
-    TRIALS_BY_MODULE: "/api/enterprise-manager/v1/trials/module",
-    TRIALS_EXISTS_SLUG: "/api/enterprise-manager/v1/trials/exists/slug",
+    TRIALS: "/api/v1/trials",
+    TRIALS_BY_SLUG: "/api/v1/trials/slug",
+    TRIALS_BY_MODULE: "/api/v1/trials/module",
+    TRIALS_EXISTS_SLUG: "/api/v1/trials/exists/slug",
 
     // Enterprise Access
-    ENTERPRISE_ACCESS: "/api/enterprise-manager/v1/enterprise-access",
+    ENTERPRISE_ACCESS: "/api/v1/enterprises",  // /{enterprise_id}/modules
   },
 
   // Data Lake Platform Endpoints
@@ -110,22 +113,22 @@ export const API_CONFIG = {
     EDA_HEATMAP: "/api/data-lake-platform/v1/eda/visualization/heatmap",
   },
 
-  // Project Manager Endpoints
+  // Project Manager Endpoints (migrated to FastAPI)
   PROJECT_MANAGER: {
-    PROJECT: "/api/project-manager/v1/project",
-    PROJECT_SEARCH: "/api/project-manager/v1/project/search",
-    PROJECTS_STATISTICS: "/api/project-manager/v1/projects/statistics",
-    BOOKMARKS: "/api/project-manager/v1/bookmarks",
-    TRIAL_SHARE: "/api/project-manager/v1/trial-share",
+    PROJECT: "/api/v1/projects",
+    PROJECT_SEARCH: "/api/v1/projects/search",
+    PROJECTS_STATISTICS: "/api/v1/projects/stats",
+    BOOKMARKS: "/api/v1/bookmarks",
+    TRIAL_SHARE: "/api/v1/projects/trial-share",
   },
 
-  // User Manager Endpoints
+  // User Manager Endpoints (migrated to FastAPI)
   USER_MANAGER: {
-    USER: "/api/user-manager/v1/user",
-    USERS: "/api/user-manager/v1/users",
-    USERS_SEARCH: "/api/user-manager/v1/users/search",
-    USERS_ROLES: "/api/user-manager/v1/users/roles",
-    USER_INVITE: "/api/user-manager/v1/user/invite",
+    USER: "/api/v1/users",
+    USERS: "/api/v1/users",
+    USERS_SEARCH: "/api/v1/users/search",
+    USERS_ROLES: "/api/v1/auth/roles",
+    USER_INVITE: "/api/v1/auth/organizations",  // /{org_id}/invitations
   },
 
   // Asset Manager Endpoints

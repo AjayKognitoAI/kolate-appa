@@ -11,8 +11,8 @@
  * Updated to match OpenAPI spec v1.0.0
  */
 
-import { patientEnrollmentAxios } from "@/utils/axios"
-import { API_CONFIG } from "@/utils/api-config"
+import { apiClient } from "@/utils/api-client"
+import { ENDPOINTS, buildPaginatedEndpoint } from "@/utils/api-endpoints"
 import type {
   CohortCreateRequest,
   CohortUpdateRequest,
@@ -55,8 +55,8 @@ import type {
   UnifiedCriteriaResponse,
 } from "@/types/cohort.types"
 
-// API Endpoints from centralized config
-const ENDPOINTS = API_CONFIG.PATIENT_ENROLLMENT
+// API Endpoints - shorthand for patient screening endpoints
+const PS = ENDPOINTS.PATIENT_SCREENING
 
 // ============ ACTIVITY TYPES ============
 // Activity types are now defined in @/types/cohort.types.ts
@@ -252,8 +252,7 @@ const cohortService = {
    * @param params - Query parameters including required enterprise_id
    */
   async getStudies(params: StudyListParams): Promise<StudyListResponse> {
-    const response = await patientEnrollmentAxios.get(ENDPOINTS.STUDIES, { params })
-    return response.data
+    return apiClient.get<StudyListResponse>(PS.STUDIES, { params })
   },
 
   /**
@@ -262,19 +261,17 @@ const cohortService = {
    * @param enterpriseId - Enterprise ID for authorization
    */
   async getStudyById(studyId: string, enterpriseId: string): Promise<StudyWithCountsResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.STUDY_BY_ID}/${studyId}`,
+    return apiClient.get<StudyWithCountsResponse>(
+      PS.STUDY_BY_ID(studyId),
       { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   /**
    * Create a new study
    */
   async createStudy(data: StudyCreateRequest): Promise<StudyResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.STUDIES, data)
-    return response.data
+    return apiClient.post<StudyResponse>(PS.STUDIES, data)
   },
 
   /**
@@ -285,23 +282,21 @@ const cohortService = {
     enterpriseId: string,
     data: StudyUpdateRequest
   ): Promise<StudyResponse> {
-    const response = await patientEnrollmentAxios.put(
-      `${ENDPOINTS.STUDY_BY_ID}/${studyId}`,
+    return apiClient.put<StudyResponse>(
+      PS.STUDY_BY_ID(studyId),
       data,
       { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   /**
    * Delete a study
    */
   async deleteStudy(studyId: string, enterpriseId: string): Promise<DeleteResponse> {
-    const response = await patientEnrollmentAxios.delete(
-      `${ENDPOINTS.STUDY_BY_ID}/${studyId}`,
+    return apiClient.delete<DeleteResponse>(
+      PS.STUDY_BY_ID(studyId),
       { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   // ============ STUDY-SPECIFIC OPERATIONS ============
@@ -310,11 +305,10 @@ const cohortService = {
    * Get all master data files for a study
    */
   async getStudyMasterData(studyId: string, enterpriseId: string): Promise<MasterDataListResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.STUDY_MASTER_DATA}/${studyId}/master-data`,
+    return apiClient.get<MasterDataListResponse>(
+      PS.STUDY_MASTER_DATA(studyId),
       { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   /**
@@ -344,17 +338,11 @@ const cohortService = {
       formData.append("column_descriptions", JSON.stringify(enhancedColumns))
     }
 
-    const response = await patientEnrollmentAxios.post(
-      `${ENDPOINTS.STUDY_UPLOAD_MASTER_DATA}/${studyId}/upload-master-data`,
+    return apiClient.upload<MasterDataUploadResponse>(
+      PS.STUDY_UPLOAD_MASTER_DATA(studyId),
       formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        timeout: 300000, // 5 minutes for large files
-      }
+      { timeout: 300000 } // 5 minutes for large files
     )
-    return response.data
   },
 
   /**
@@ -370,11 +358,10 @@ const cohortService = {
     page: number = 0,
     size: number = 100
   ): Promise<MasterDataPreviewResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.MASTER_DATA_PREVIEW}/${masterDataId}/preview`,
+    return apiClient.get<MasterDataPreviewResponse>(
+      PS.MASTER_DATA_PREVIEW(masterDataId),
       { params: { enterprise_id: enterpriseId, page, size } }
     )
-    return response.data
   },
 
   /**
@@ -386,11 +373,10 @@ const cohortService = {
     page: number = 0,
     size: number = 20
   ): Promise<CohortListResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.STUDY_COHORTS}/${studyId}/cohorts`,
+    return apiClient.get<CohortListResponse>(
+      PS.STUDY_COHORTS(studyId),
       { params: { enterprise_id: enterpriseId, page, size } }
     )
-    return response.data
   },
 
   /**
@@ -403,11 +389,10 @@ const cohortService = {
     studyId: string,
     enterpriseId: string
   ): Promise<CohortPatientIdsResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.STUDY_COHORT_PATIENT_IDS}/${studyId}/cohort-patient-ids`,
+    return apiClient.get<CohortPatientIdsResponse>(
+      PS.STUDY_COHORT_PATIENT_IDS(studyId),
       { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   /**
@@ -442,18 +427,11 @@ const cohortService = {
       params.name = name
     }
 
-    const response = await patientEnrollmentAxios.post(
-      `${ENDPOINTS.STUDY_MERGE_COHORT}/${studyId}/merge-cohort`,
+    return apiClient.upload<MergeResultResponse>(
+      PS.STUDY_MERGE_COHORT(studyId),
       formData,
-      {
-        params,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        timeout: 300000, // 5 minutes for large files
-      }
+      { params, timeout: 300000 } // 5 minutes for large files
     )
-    return response.data
   },
 
   // ============ COHORT CRUD ============
@@ -463,24 +441,21 @@ const cohortService = {
    * @param params - Query parameters including required enterprise_id
    */
   async getCohorts(params: CohortListParams): Promise<CohortListResponse> {
-    const response = await patientEnrollmentAxios.get(ENDPOINTS.COHORTS, { params })
-    return response.data
+    return apiClient.get<CohortListResponse>(PS.COHORTS, { params })
   },
 
   /**
    * Get a single cohort by ID
    */
   async getCohortById(cohortId: string): Promise<CohortResponse> {
-    const response = await patientEnrollmentAxios.get(`${ENDPOINTS.COHORT_BY_ID}/${cohortId}`)
-    return response.data
+    return apiClient.get<CohortResponse>(PS.COHORT_BY_ID(cohortId))
   },
 
   /**
    * Create a new cohort
    */
   async createCohort(data: CohortCreateRequest): Promise<CohortResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.COHORTS, data)
-    return response.data
+    return apiClient.post<CohortResponse>(PS.COHORTS, data)
   },
 
   /**
@@ -490,11 +465,7 @@ const cohortService = {
     cohortId: string,
     data: CohortUpdateRequest
   ): Promise<CohortResponse> {
-    const response = await patientEnrollmentAxios.put(
-      `${ENDPOINTS.COHORT_BY_ID}/${cohortId}`,
-      data
-    )
-    return response.data
+    return apiClient.put<CohortResponse>(PS.COHORT_BY_ID(cohortId), data)
   },
 
   /**
@@ -512,11 +483,7 @@ const cohortService = {
     if (userName) {
       params.user_name = userName
     }
-    const response = await patientEnrollmentAxios.delete(
-      `${ENDPOINTS.COHORT_BY_ID}/${cohortId}`,
-      { params }
-    )
-    return response.data
+    return apiClient.delete<DeleteResponse>(PS.COHORT_BY_ID(cohortId), { params })
   },
 
   // ============ SAVED FILTERS CRUD ============
@@ -526,24 +493,21 @@ const cohortService = {
    * @param params - Query parameters including required enterprise_id
    */
   async getFilters(params: FilterListParams): Promise<FilterListResponse> {
-    const response = await patientEnrollmentAxios.get(ENDPOINTS.FILTERS, { params })
-    return response.data
+    return apiClient.get<FilterListResponse>(PS.FILTERS, { params })
   },
 
   /**
    * Get a single saved filter by ID
    */
   async getFilterById(filterId: string): Promise<SavedFilterResponse> {
-    const response = await patientEnrollmentAxios.get(`${ENDPOINTS.FILTER_BY_ID}/${filterId}`)
-    return response.data
+    return apiClient.get<SavedFilterResponse>(PS.FILTER_BY_ID(filterId))
   },
 
   /**
    * Create a new saved filter
    */
   async createFilter(data: SavedFilterCreateRequest): Promise<SavedFilterResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.FILTERS, data)
-    return response.data
+    return apiClient.post<SavedFilterResponse>(PS.FILTERS, data)
   },
 
   /**
@@ -553,21 +517,14 @@ const cohortService = {
     filterId: string,
     data: SavedFilterUpdateRequest
   ): Promise<SavedFilterResponse> {
-    const response = await patientEnrollmentAxios.put(
-      `${ENDPOINTS.FILTER_BY_ID}/${filterId}`,
-      data
-    )
-    return response.data
+    return apiClient.put<SavedFilterResponse>(PS.FILTER_BY_ID(filterId), data)
   },
 
   /**
    * Delete a saved filter
    */
   async deleteFilter(filterId: string): Promise<DeleteResponse> {
-    const response = await patientEnrollmentAxios.delete(
-      `${ENDPOINTS.FILTER_BY_ID}/${filterId}`
-    )
-    return response.data
+    return apiClient.delete<DeleteResponse>(PS.FILTER_BY_ID(filterId))
   },
 
   // ============ MASTER DATA OPERATIONS ============
@@ -589,17 +546,11 @@ const cohortService = {
     formData.append("enterprise_id", enterpriseId)
     formData.append("user_id", userId)
 
-    const response = await patientEnrollmentAxios.post(
-      ENDPOINTS.UPLOAD_MASTER_DATA,
+    return apiClient.upload<MasterDataUploadResponse>(
+      PS.MASTER_DATA_UPLOAD,
       formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        timeout: 300000, // 5 minutes for large files
-      }
+      { timeout: 300000 } // 5 minutes for large files
     )
-    return response.data
   },
 
   /**
@@ -615,17 +566,10 @@ const cohortService = {
     page: number = 0,
     size: number = 100
   ): Promise<NullRecordsResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `/api/patient-enrollment/v1/master-data/${masterDataId}/null-records`,
-      {
-        params: {
-          enterprise_id: enterpriseId,
-          page,
-          size,
-        },
-      }
+    return apiClient.get<NullRecordsResponse>(
+      PS.MASTER_DATA_NULL_RECORDS(masterDataId),
+      { params: { enterprise_id: enterpriseId, page, size } }
     )
-    return response.data
   },
 
   /**
@@ -637,11 +581,10 @@ const cohortService = {
     masterDataId: string,
     request: EditNullValuesRequest
   ): Promise<EditNullValuesResponse> {
-    const response = await patientEnrollmentAxios.patch(
-      `/api/patient-enrollment/v1/master-data/${masterDataId}/edit-null-values`,
+    return apiClient.patch<EditNullValuesResponse>(
+      PS.MASTER_DATA_EDIT_NULL_VALUES(masterDataId),
       request
     )
-    return response.data
   },
 
   /**
@@ -653,15 +596,10 @@ const cohortService = {
     masterDataId: string,
     enterpriseId: string
   ): Promise<VersionHistoryResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `/api/patient-enrollment/v1/master-data/${masterDataId}/versions`,
-      {
-        params: {
-          enterprise_id: enterpriseId,
-        },
-      }
+    return apiClient.get<VersionHistoryResponse>(
+      PS.MASTER_DATA_VERSIONS(masterDataId),
+      { params: { enterprise_id: enterpriseId } }
     )
-    return response.data
   },
 
   // ============ COMPARISON ============
@@ -671,8 +609,7 @@ const cohortService = {
    */
   async compareCohorts(cohortIds: string[]): Promise<CohortCompareResponse> {
     const request: CompareRequest = { cohort_ids: cohortIds }
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.COMPARE, request)
-    return response.data
+    return apiClient.post<CohortCompareResponse>(PS.COHORTS_COMPARE, request)
   },
 
   // ============ ACTIVITY & ANALYTICS ============
@@ -701,27 +638,24 @@ const cohortService = {
     studyId: string,
     params?: ActivityListParams
   ): Promise<ActivityResponse> {
-    const response = await patientEnrollmentAxios.get(
-      `${ENDPOINTS.STUDY_ACTIVITY}/${studyId}/activity`,
+    return apiClient.get<ActivityResponse>(
+      PS.STUDY_ACTIVITY(studyId),
       { params: { limit: 50, offset: 0, ...params } }
     )
-    return response.data
   },
 
   /**
    * Get screening analytics/dashboard data
    */
   async getAnalytics(): Promise<AnalyticsResponse> {
-    const response = await patientEnrollmentAxios.get(ENDPOINTS.ANALYTICS)
-    return response.data
+    return apiClient.get<AnalyticsResponse>(PS.ANALYTICS)
   },
 
   /**
    * Health check endpoint
    */
   async healthCheck(): Promise<{ status: string }> {
-    const response = await patientEnrollmentAxios.get(ENDPOINTS.HEALTH)
-    return response.data
+    return apiClient.get<{ status: string }>(PS.HEALTH)
   },
 
   // ============ AI FILTER GENERATION ============
@@ -733,10 +667,11 @@ const cohortService = {
    * @param request - The AI filter generation request
    */
   async generateFilterFromAI(request: AIGenerateFilterRequest): Promise<AIGenerateFilterResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.AI_GENERATE_FILTER, request, {
-      timeout: 60000, // 60 seconds for AI processing
-    })
-    return response.data
+    return apiClient.post<AIGenerateFilterResponse>(
+      PS.AI_GENERATE_FILTER,
+      request,
+      { timeout: 60000 } // 60 seconds for AI processing
+    )
   },
 
   /**
@@ -747,10 +682,11 @@ const cohortService = {
    * @param request - Schema validation request with columns and IC/EC criteria
    */
   async validateSchema(request: ValidateSchemaRequest): Promise<ValidateSchemaResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.VALIDATE_SCHEMA, request, {
-      timeout: 30000, // 30 seconds for validation
-    })
-    return response.data
+    return apiClient.post<ValidateSchemaResponse>(
+      PS.AI_VALIDATE_SCHEMA,
+      request,
+      { timeout: 30000 } // 30 seconds for validation
+    )
   },
 
   /**
@@ -785,10 +721,11 @@ const cohortService = {
    * // - "Pregnant patients" → { field: "pregnant", operator: "equals", value: "No" }
    */
   async processCriteria(request: UnifiedCriteriaRequest): Promise<UnifiedCriteriaResponse> {
-    const response = await patientEnrollmentAxios.post(ENDPOINTS.AI_PROCESS_CRITERIA, request, {
-      timeout: 60000, // 60 seconds for AI processing
-    })
-    return response.data
+    return apiClient.post<UnifiedCriteriaResponse>(
+      PS.AI_PROCESS_CRITERIA,
+      request,
+      { timeout: 60000 } // 60 seconds for AI processing
+    )
   },
 
   /**
@@ -822,14 +759,11 @@ const cohortService = {
   async generateColumnDescriptions(
     request: GenerateColumnDescriptionsRequest
   ): Promise<GenerateColumnDescriptionsResponse> {
-    const response = await patientEnrollmentAxios.post(
-      ENDPOINTS.AI_GENERATE_COLUMN_DESCRIPTIONS,
+    return apiClient.post<GenerateColumnDescriptionsResponse>(
+      PS.AI_GENERATE_COLUMN_DESCRIPTIONS,
       request,
-      {
-        timeout: 60000, // 60 seconds for AI processing
-      }
+      { timeout: 60000 } // 60 seconds for AI processing
     )
-    return response.data
   },
 
   // ============ UTILITY METHODS ============

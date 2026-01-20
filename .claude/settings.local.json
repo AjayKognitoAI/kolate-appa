@@ -12,7 +12,12 @@
       "Bash(npx add-skill@latest vercel-labs/agent-skills --yes)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Ajay.KOGNITOAI\\\\Documents\\\\poc\\\\kolate-appa\" -Recurse -Directory -Filter \".git\" -Force)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\Ajay.KOGNITOAI\\\\Documents\\\\kolateai\\\\ml-microservices\\\\patient-screening-service\\\\app\")",
+      "Bash(findstr:*)",
+      "Bash(find:*)",
+      "Bash(node:*)",
+      "Bash(tree:*)"
     ]
   }
 }

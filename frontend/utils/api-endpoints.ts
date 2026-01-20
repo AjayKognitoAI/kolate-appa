@@ -311,6 +311,67 @@ export const ENDPOINTS = {
   },
 
   // ===========================================================================
+  // Patient Screening (Studies, Cohorts, Filters, AI)
+  // (New consolidated endpoint)
+  // ===========================================================================
+  PATIENT_SCREENING: {
+    // Studies CRUD
+    STUDIES: `${API_VERSION}/patient-screening/studies`,
+    STUDY_BY_ID: (id: string) => `${API_VERSION}/patient-screening/studies/${id}`,
+    STUDY_DETAILS: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/details`,
+    STUDY_MASTER_DATA: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/master-data`,
+    STUDY_UPLOAD_MASTER_DATA: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/upload-master-data`,
+    STUDY_COHORTS: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/cohorts`,
+    STUDY_COHORT_PATIENT_IDS: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/cohort-patient-ids`,
+    STUDY_ACTIVITY: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/activity`,
+
+    // Cohorts CRUD
+    COHORTS: `${API_VERSION}/patient-screening/cohorts`,
+    COHORT_BY_ID: (id: string) => `${API_VERSION}/patient-screening/cohorts/${id}`,
+    COHORT_PATIENT_IDS: (id: string) => `${API_VERSION}/patient-screening/cohorts/${id}/patient-ids`,
+
+    // Filters CRUD
+    FILTERS: `${API_VERSION}/patient-screening/filters`,
+    FILTER_BY_ID: (id: string) => `${API_VERSION}/patient-screening/filters/${id}`,
+    FILTER_TEMPLATES: `${API_VERSION}/patient-screening/filters/templates`,
+    FILTER_DUPLICATE: (id: string) => `${API_VERSION}/patient-screening/filters/${id}/duplicate`,
+
+    // Study-specific operations
+    STUDY_MERGE_COHORT: (id: string) => `${API_VERSION}/patient-screening/studies/${id}/merge-cohort`,
+
+    // Master Data
+    MASTER_DATA_UPLOAD: `${API_VERSION}/patient-screening/master-data/upload`,
+    MASTER_DATA_BY_ID: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}`,
+    MASTER_DATA_PREVIEW: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/preview`,
+    MASTER_DATA_DOWNLOAD_URL: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/download-url`,
+    MASTER_DATA_COLUMN_DESCRIPTIONS: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/column-descriptions`,
+    MASTER_DATA_NULL_RECORDS: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/null-records`,
+    MASTER_DATA_EDIT_NULL_VALUES: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/edit-null-values`,
+    MASTER_DATA_VERSIONS: (id: string) => `${API_VERSION}/patient-screening/master-data/${id}/versions`,
+
+    // Comparison
+    COHORTS_COMPARE: `${API_VERSION}/patient-screening/cohorts/compare`,
+    COHORT_OVERLAP: (id1: string, id2: string) => `${API_VERSION}/patient-screening/cohorts/${id1}/overlap/${id2}`,
+    COHORT_UNIQUE_PATIENTS: (id: string) => `${API_VERSION}/patient-screening/cohorts/${id}/unique-patients`,
+    COHORTS_COMMON_PATIENTS: `${API_VERSION}/patient-screening/cohorts/common-patients`,
+
+    // Analytics
+    ACTIVITY_ENTITY: (entityType: string, entityId: string) => `${API_VERSION}/patient-screening/activity/entity/${entityType}/${entityId}`,
+    ACTIVITY_RECENT: `${API_VERSION}/patient-screening/activity/recent`,
+    ACTIVITY_USER: (userId: string) => `${API_VERSION}/patient-screening/activity/user/${userId}`,
+
+    // AI Endpoints
+    AI_GENERATE_FILTER: `${API_VERSION}/patient-screening/ai/generate-filter`,
+    AI_GENERATE_COLUMN_DESCRIPTIONS: `${API_VERSION}/patient-screening/ai/generate-column-descriptions`,
+    AI_PROCESS_CRITERIA: `${API_VERSION}/patient-screening/ai/process-criteria`,
+    AI_VALIDATE_SCHEMA: `${API_VERSION}/patient-screening/ai/validate-schema`,
+
+    // Analytics & Health
+    ANALYTICS: `${API_VERSION}/patient-screening/analytics`,
+    HEALTH: `${API_VERSION}/patient-screening/health`,
+  },
+
+  // ===========================================================================
   // Health & System
   // ===========================================================================
   SYSTEM: {

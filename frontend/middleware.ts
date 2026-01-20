@@ -9,6 +9,11 @@ const publicRoutes = [
   "/error",
 ];
 
+// Define public route prefixes (for dynamic routes like /onboarding/[token])
+const publicRoutePrefixes = [
+  "/onboarding",  // Onboarding wizard for new enterprises
+];
+
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const roles = req.auth?.user?.roles || [];
@@ -19,6 +24,8 @@ export default auth((req) => {
   const isOrgAdminRoute = req.nextUrl.pathname.startsWith("/org");
   const isPublicRoute = publicRoutes.some(
     (route) => req.nextUrl.pathname === route
+  ) || publicRoutePrefixes.some(
+    (prefix) => req.nextUrl.pathname.startsWith(prefix)
   );
   const isUser = Array.isArray(roles) && roles.includes("org:member");
 

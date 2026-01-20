@@ -13,6 +13,43 @@ export interface EnterpriseInviteResponse {
   enterprise_name: string;
   enterprise_domain: string;
   admin_email: string;
+  organization_id: string;
+  onboarding_url?: string;
+  onboarding_token?: string;
+  message: string;
+}
+
+export interface OnboardingStatus {
+  enterprise_id: string;
+  enterprise_name: string;
+  enterprise_domain: string;
+  admin_email: string;
+  organization_id: string;
+  status: string;
+  onboarding: {
+    current_step: string | null;
+    is_completed: boolean;
+    progress_data: Record<string, any>;
+  } | null;
+}
+
+export interface OnboardingStepUpdate {
+  step: string;
+  step_data?: Record<string, any>;
+}
+
+export interface OnboardingStepResponse {
+  enterprise_id: string;
+  current_step: string;
+  is_completed: boolean;
+  progress_data: Record<string, any>;
+}
+
+export interface OnboardingCompleteResponse {
+  enterprise_id: string;
+  enterprise_name: string;
+  organization_id: string;
+  status: string;
   message: string;
 }
 
@@ -128,6 +165,63 @@ export const enterpriseService = {
   > => {
     const response = await privateAxios.get(
       ENDPOINTS.ENTERPRISES_STATS
+    );
+    return response.data;
+  },
+
+  /**
+   * Gets enterprise by ID
+   * @param enterprise_id The ID of the enterprise
+   * @returns Promise with enterprise details
+   */
+  getEnterprise: async (enterprise_id: string): Promise<Enterprise> => {
+    const response = await privateAxios.get(
+      `${ENDPOINTS.ENTERPRISES}/${enterprise_id}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Gets onboarding progress for an enterprise
+   * @param enterprise_id The ID of the enterprise
+   * @returns Promise with onboarding progress
+   */
+  getOnboardingProgress: async (
+    enterprise_id: string
+  ): Promise<OnboardingStatus> => {
+    const response = await privateAxios.get(
+      `${ENDPOINTS.ONBOARDING_PROGRESS}/${enterprise_id}/onboarding`
+    );
+    return response.data;
+  },
+
+  /**
+   * Updates onboarding progress for an enterprise
+   * @param enterprise_id The ID of the enterprise
+   * @param data Onboarding update data
+   * @returns Promise with updated progress
+   */
+  updateOnboardingProgress: async (
+    enterprise_id: string,
+    data: OnboardingStepUpdate
+  ): Promise<OnboardingStepResponse> => {
+    const response = await privateAxios.put(
+      `${ENDPOINTS.ONBOARDING_PROGRESS}/${enterprise_id}/onboarding`,
+      data
+    );
+    return response.data;
+  },
+
+  /**
+   * Completes onboarding for an enterprise
+   * @param enterprise_id The ID of the enterprise
+   * @returns Promise with completion response
+   */
+  completeOnboarding: async (
+    enterprise_id: string
+  ): Promise<OnboardingCompleteResponse> => {
+    const response = await privateAxios.post(
+      `${ENDPOINTS.ONBOARDING_PROGRESS}/${enterprise_id}/onboarding/complete`
     );
     return response.data;
   },

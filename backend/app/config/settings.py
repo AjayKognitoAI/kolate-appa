@@ -47,6 +47,12 @@ class Settings(BaseSettings):
     AUTH0_MGMT_AUDIENCE: Optional[str] = None  # e.g., "https://{domain}/api/v2/"
     AUTH0_SSO_PROFILE_ID: Optional[str] = None  # Self-service SSO profile ID
 
+    # Auth0 Application Configuration (for organization invites)
+    AUTH0_CLIENT_ID: Optional[str] = None  # Client ID for organization invites
+    AUTH0_DEFAULT_CONNECTION_ID: Optional[str] = None  # Default connection for new orgs
+    AUTH0_ORG_ADMIN_ROLE_ID: Optional[str] = None  # Role ID for org admins
+    AUTH0_WEBHOOK_SECRET: Optional[str] = None  # Secret for webhook verification
+
     # Multi-Tenancy Configuration
     ENABLE_MULTI_TENANT: bool = True
     TENANT_HEADER_NAME: str = "org-id"
@@ -123,6 +129,28 @@ class Settings(BaseSettings):
 
     # Frontend URL (for email links)
     FRONTEND_URL: str = "http://localhost:3000"
+
+    # ===========================================
+    # Patient Screening Service Configuration
+    # ===========================================
+
+    # LLM Configuration (for AI-powered filter generation)
+    LLM_PROVIDER: str = "openai"  # Options: "openai", "azure"
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_MODEL: str = "gpt-4o"
+    AZURE_OPENAI_API_KEY: Optional[str] = None
+    AZURE_OPENAI_ENDPOINT: Optional[str] = None
+    AZURE_OPENAI_API_VERSION: str = "2024-02-15-preview"
+    AZURE_OPENAI_DEPLOYMENT_NAME: Optional[str] = None
+    LLM_TEMPERATURE: float = 0.1  # Low temperature for consistent filter generation
+
+    # Patient Screening S3 Configuration
+    PATIENT_SCREENING_S3_BUCKET: Optional[str] = None
+    PATIENT_SCREENING_S3_REGION: str = "us-east-1"
+    PATIENT_SCREENING_S3_KEY_PREFIX: str = "master-data"
+    PRESIGNED_URL_EXPIRY_SECONDS: int = 900  # 15 minutes
+    PRESIGNED_URL_CACHE_SIZE: int = 100  # LRU cache size for presigned URLs
+    MAX_MASTER_DATA_FILE_SIZE_MB: int = 100  # Maximum file size for master data uploads
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     def parse_cors_origins(cls, v):

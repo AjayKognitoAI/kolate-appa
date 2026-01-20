@@ -17,6 +17,8 @@ import {
   MenuItem,
   TablePagination,
   Skeleton,
+  LinearProgress,
+  Tooltip,
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import SearchIcon from "@mui/icons-material/Search";
@@ -27,6 +29,8 @@ import {
   IconCircleFilled,
   IconDots,
   IconSend,
+  IconProgressCheck,
+  IconExternalLink,
 } from "@tabler/icons-react";
 import {
   enterpriseService,
@@ -108,8 +112,37 @@ export interface EnterpriseTableRow {
   region?: string;
   status?: string;
   organization_id?: string;
+  onboarding_progress?: {
+    current_step: string | null;
+    is_completed: boolean;
+    step_number?: number;
+    total_steps?: number;
+  };
   [key: string]: any;
 }
+
+// Onboarding step mapping for progress display
+const ONBOARDING_STEPS = [
+  { key: "INVITED", label: "Invited", step: 0 },
+  { key: "EMAIL_SENT", label: "Email Sent", step: 0 },
+  { key: "ONBOARDING_STARTED", label: "Started", step: 1 },
+  { key: "ADMIN_SETUP", label: "Admin Setup", step: 2 },
+  { key: "SSO_CONFIGURED", label: "SSO Config", step: 3 },
+  { key: "SCHEMA_CREATED", label: "Data Source", step: 4 },
+  { key: "DATA_MIGRATED", label: "Team Invited", step: 5 },
+  { key: "COMPLETED", label: "Completed", step: 6 },
+];
+
+const getOnboardingProgress = (step: string | null | undefined): { progress: number; label: string } => {
+  if (!step) return { progress: 0, label: "Not Started" };
+  const stepInfo = ONBOARDING_STEPS.find(s => s.key === step);
+  if (!stepInfo) return { progress: 0, label: "Unknown" };
+  if (step === "COMPLETED") return { progress: 100, label: "Complete" };
+  return {
+    progress: Math.round((stepInfo.step / 6) * 100),
+    label: `Step ${stepInfo.step}/6 - ${stepInfo.label}`,
+  };
+};
 
 const EnterpriseTable = ({
   isEnterprisePage,
@@ -292,6 +325,7 @@ const EnterpriseTable = ({
                       "Location",
                       "Enterprise size",
                       "Status",
+                      "Onboarding",
                       "",
                     ].map((header, index) => (
                       <TableCell
@@ -314,7 +348,7 @@ const EnterpriseTable = ({
                   {loading ? (
                     Array.from({ length: rowsPerPage }).map((_, idx) => (
                       <TableRow key={`skeleton-row-${idx}`}>
-                        {Array.from({ length: 6 }).map((_, colIdx) => (
+                        {Array.from({ length: 7 }).map((_, colIdx) => (
                           <TableCell key={`skeleton-cell-${colIdx}`}>
                             <Skeleton variant="rectangular" height={32} />
                           </TableCell>
@@ -323,13 +357,13 @@ const EnterpriseTable = ({
                     ))
                   ) : error ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center">
+                      <TableCell colSpan={7} align="center">
                         <Typography color="error">{error}</Typography>
                       </TableCell>
                     </TableRow>
                   ) : data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                      <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                         <EmptyState searchKeyword={searchKeyword} />
                       </TableCell>
                     </TableRow>
@@ -520,11 +554,63 @@ const EnterpriseTable = ({
                             paddingY: 2,
                             paddingX: 2,
                             borderBottom: "none",
+                            minWidth: 180,
+                          }}
+                        >
+                          {row.status === "ACTIVE" ? (
+                            <Chip
+                              icon={<IconProgressCheck size={14} />}
+                              label="Complete"
+                              size="small"
+                              sx={{
+                                bgcolor: "#ECFDF3",
+                                color: "#027A48",
+                                "& .MuiChip-icon": { color: "#12B76A" },
+                              }}
+                            />
+                          ) : row.status === "INVITED" || row.status === "PENDING" ? (
+                            <Tooltip
+                              title={getOnboardingProgress(row.onboarding_progress?.current_step).label}
+                              arrow
+                            >
+                              <Box sx={{ width: "100%" }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                                  <Typography variant="caption" color="textSecondary">
+                                    {getOnboardingProgress(row.onboarding_progress?.current_step).label}
+                                  </Typography>
+                                </Box>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={getOnboardingProgress(row.onboarding_progress?.current_step).progress}
+                                  sx={{
+                                    height: 6,
+                                    borderRadius: 3,
+                                    bgcolor: "#E5E7EB",
+                                    "& .MuiLinearProgress-bar": {
+                                      borderRadius: 3,
+                                      bgcolor: "#4E5BA6",
+                                    },
+                                  }}
+                                />
+                              </Box>
+                            </Tooltip>
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">
+                              -
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            paddingY: 2,
+                            paddingX: 2,
+                            borderBottom: "none",
                           }}
                         >
                           <IconButton
                             id={`action-icon-${row.id}`}
                             onClick={(event) => handleMenuOpen(event, row)}
+                            aria-label={`Actions for ${row.name}`}
                           >
                             <MoreVertOutlinedIcon />
                           </IconButton>
@@ -565,7 +651,24 @@ const EnterpriseTable = ({
         >
           {selectedEnt?.status === "INVITED" && (
             <MenuItem onClick={handleReInvite} disabled={resendLoading}>
-              Resend
+              Resend Invitation
+            </MenuItem>
+          )}
+          {(selectedEnt?.status === "INVITED" || selectedEnt?.status === "PENDING") && (
+            <MenuItem
+              onClick={() => {
+                const token = selectedEnt?.settings?.onboarding_token;
+                if (token) {
+                  const url = `${window.location.origin}/onboarding/${token}`;
+                  navigator.clipboard.writeText(url);
+                  toast.success("Onboarding link copied to clipboard");
+                } else {
+                  toast.warning("Onboarding token not available");
+                }
+                handleMenuClose();
+              }}
+            >
+              Copy Onboarding Link
             </MenuItem>
           )}
           <MenuItem
@@ -574,7 +677,7 @@ const EnterpriseTable = ({
               handleMenuClose();
             }}
           >
-            View
+            View Details
           </MenuItem>
           <MenuItem
             onClick={() => {

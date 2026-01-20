@@ -1,25 +1,25 @@
 """
-AWS S3 storage implementation.
+AWS S3 storage implementation using the centralized S3 client.
 """
 
-from typing import Tuple
+from typing import Tuple, Optional
 from fastapi import UploadFile
-import aioboto3
 from botocore.exceptions import ClientError
 
+from app.core.s3_client import S3Client
 from app.utils.file_storage import FileStorageStrategy
 
 
 class S3FileStorage(FileStorageStrategy):
-    """AWS S3 storage implementation."""
+    """AWS S3 storage implementation using centralized S3 client."""
 
     def __init__(
         self,
         bucket_name: str,
         region: str = "us-east-1",
-        aws_access_key_id: str = None,
-        aws_secret_access_key: str = None,
-        base_url: str = None,
+        aws_access_key_id: Optional[str] = None,
+        aws_secret_access_key: Optional[str] = None,
+        base_url: Optional[str] = None,
     ):
         """
         Initialize S3 file storage.
@@ -34,23 +34,25 @@ class S3FileStorage(FileStorageStrategy):
         super().__init__()
         self.bucket_name = bucket_name
         self.region = region
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
-        self.base_url = (
-            base_url or f"https://{bucket_name}.s3.{region}.amazonaws.com"
-        )
+        self.base_url = base_url or f"https://{bucket_name}.s3.{region}.amazonaws.com"
 
-        # Create session
-        self.session = aioboto3.Session(
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name=region,
+        # Use centralized S3 client
+        self._s3_client = S3Client(
+            bucket=bucket_name,
+            region=region,
+            access_key_id=aws_access_key_id,
+            secret_access_key=aws_secret_access_key,
         )
 
         self.logger.info(f"S3 file storage initialized for bucket: {bucket_name}")
 
+    @property
+    def s3_client(self) -> S3Client:
+        """Get the S3 client."""
+        return self._s3_client
+
     async def save_file(
-        self, file: UploadFile, folder: str, filename: str = None
+        self, file: UploadFile, folder: str, filename: Optional[str] = None
     ) -> Tuple[str, str]:
         """
         Save a file to S3.
@@ -77,14 +79,12 @@ class S3FileStorage(FileStorageStrategy):
             # Read file content
             content = await file.read()
 
-            # Upload to S3
-            async with self.session.client("s3") as s3_client:
-                await s3_client.put_object(
-                    Bucket=self.bucket_name,
-                    Key=s3_key,
-                    Body=content,
-                    ContentType=content_type,
-                )
+            # Upload to S3 using centralized client
+            await self.s3_client.upload_file(
+                key=s3_key,
+                data=content,
+                content_type=content_type,
+            )
 
             self.logger.info(f"File saved to S3: {s3_key}")
             return (s3_key, "s3")
@@ -107,9 +107,7 @@ class S3FileStorage(FileStorageStrategy):
             True if deleted successfully, False otherwise
         """
         try:
-            async with self.session.client("s3") as s3_client:
-                await s3_client.delete_object(Bucket=self.bucket_name, Key=file_path)
-
+            await self.s3_client.delete_file(file_path)
             self.logger.info(f"File deleted from S3: {file_path}")
             return True
 
@@ -131,15 +129,7 @@ class S3FileStorage(FileStorageStrategy):
             True if file exists, False otherwise
         """
         try:
-            async with self.session.client("s3") as s3_client:
-                await s3_client.head_object(Bucket=self.bucket_name, Key=file_path)
-            return True
-
-        except ClientError as e:
-            if e.response["Error"]["Code"] == "404":
-                return False
-            self.logger.error(f"Error checking file existence in S3: {str(e)}")
-            return False
+            return await self.s3_client.file_exists(file_path)
         except Exception as e:
             self.logger.error(
                 f"Unexpected error checking file existence in S3: {str(e)}"
@@ -174,14 +164,10 @@ class S3FileStorage(FileStorageStrategy):
             Presigned URL
         """
         try:
-            async with self.session.client("s3") as s3_client:
-                url = await s3_client.generate_presigned_url(
-                    "get_object",
-                    Params={"Bucket": self.bucket_name, "Key": file_path},
-                    ExpiresIn=expiration,
-                )
-            return url
-
+            return await self.s3_client.generate_presigned_url(
+                key=file_path,
+                expires_in=expiration,
+            )
         except ClientError as e:
             self.logger.error(f"Error generating presigned URL: {str(e)}")
             raise

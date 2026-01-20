@@ -111,7 +111,7 @@ app.add_middleware(
 # Similar to Spring Cloud Gateway's JwtAuthenticationFilter
 app.add_middleware(
     APIGatewayMiddleware,
-    enforce_auth=False,  # Don't enforce at middleware level, let route handlers decide
+    enforce_auth=True,  # Enforce auth at middleware level, public paths still skip
 )
 
 # Register exception handlers

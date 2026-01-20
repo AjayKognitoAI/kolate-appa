@@ -51,6 +51,8 @@ class APIGatewayMiddleware(BaseHTTPMiddleware):
         "/api/v1/health",
         "/api/v1/auth/callback",
         "/api/v1/auth/login",
+        "/api/v1/enterprises/external/",  # External onboarding endpoints
+        "/api/v1/enterprises/webhooks/",  # Webhook handlers
     ]
 
     # Custom claim for organization ID in Auth0 token
