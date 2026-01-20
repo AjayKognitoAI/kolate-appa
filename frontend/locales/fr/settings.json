@@ -1,0 +1,25 @@
+{
+  "title": "Parametres",
+  "subtitle": "Gerez les parametres et preferences de votre organisation",
+  "appearance": {
+    "title": "Apparence et Langue",
+    "theme": "Theme",
+    "light": "Clair",
+    "dark": "Sombre",
+    "language": "Langue"
+  },
+  "support": {
+    "title": "Support",
+    "needHelp": "Besoin d'aide?",
+    "helpText": "Si vous avez des questions ou besoin d'aide, veuillez contacter notre equipe de support."
+  },
+  "account": {
+    "title": "Gestion du compte",
+    "subtitle": "Options avancees pour le compte de votre organisation"
+  },
+  "danger": {
+    "title": "Zone de danger",
+    "warning": "La suppression de votre compte entreprise supprimera definitivement toutes les donnees, utilisateurs et configurations. Cette action est irreversible.",
+    "deleteButton": "Demander la suppression du compte"
+  }
+}

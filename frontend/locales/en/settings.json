@@ -1,0 +1,25 @@
+{
+  "title": "Settings",
+  "subtitle": "Manage your organization's account settings and preferences",
+  "appearance": {
+    "title": "Appearance & Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language"
+  },
+  "support": {
+    "title": "Support",
+    "needHelp": "Need Help?",
+    "helpText": "If you have any questions or need help, please reach out to our support team."
+  },
+  "account": {
+    "title": "Account Management",
+    "subtitle": "Advanced options for your organization's account"
+  },
+  "danger": {
+    "title": "Danger Zone",
+    "warning": "Deleting your enterprise account will permanently remove all data, users, and configurations. This action cannot be undone.",
+    "deleteButton": "Request Account Deletion"
+  }
+}

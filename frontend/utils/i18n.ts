@@ -1,32 +1,70 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import english from '../utils/languages/en.json';
-import french from '../utils/languages/fr.json';
-import arabic from '../utils/languages/ar.json';
-import chinese from '../utils/languages/ch.json';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+
+// English translations
+import enCommon from "../locales/en/common.json";
+import enSettings from "../locales/en/settings.json";
+
+// French translations
+import frCommon from "../locales/fr/common.json";
+import frSettings from "../locales/fr/settings.json";
+
+// German translations
+import deCommon from "../locales/de/common.json";
+import deSettings from "../locales/de/settings.json";
+
+// Spanish translations
+import esCommon from "../locales/es/common.json";
+import esSettings from "../locales/es/settings.json";
+
+// Storage key for language preference
+export const LANGUAGE_STORAGE_KEY = "kolate_language";
+
+// Supported languages
+export const SUPPORTED_LANGUAGES = [
+  { code: "en", name: "English", flag: "US", nativeName: "English" },
+  { code: "fr", name: "French", flag: "FR", nativeName: "Francais" },
+  { code: "de", name: "German", flag: "DE", nativeName: "Deutsch" },
+  { code: "es", name: "Spanish", flag: "ES", nativeName: "Espanol" },
+] as const;
+
+export type LanguageCode = (typeof SUPPORTED_LANGUAGES)[number]["code"];
 
 const resources = {
   en: {
-    translation: english,
+    common: enCommon,
+    settings: enSettings,
   },
   fr: {
-    translation: french,
+    common: frCommon,
+    settings: frSettings,
   },
-  ar: {
-    translation: arabic,
+  de: {
+    common: deCommon,
+    settings: deSettings,
   },
-  ch: {
-    translation: chinese,
+  es: {
+    common: esCommon,
+    settings: esSettings,
   },
 };
 
 i18n
-  .use(initReactI18next) // passes i18n down to react-i18next
+  .use(LanguageDetector)
+  .use(initReactI18next)
   .init({
     resources,
-    lng: 'en',
+    fallbackLng: "en",
+    defaultNS: "common",
+    ns: ["common", "settings"],
+    detection: {
+      order: ["localStorage", "navigator"],
+      lookupLocalStorage: LANGUAGE_STORAGE_KEY,
+      caches: ["localStorage"],
+    },
     interpolation: {
-      escapeValue: false, // react already safes from xss
+      escapeValue: false, // React already safes from XSS
     },
   });
 

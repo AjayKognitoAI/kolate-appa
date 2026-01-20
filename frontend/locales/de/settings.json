@@ -1,0 +1,25 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Verwalten Sie die Kontoeinstellungen und Praferenzen Ihrer Organisation",
+  "appearance": {
+    "title": "Darstellung und Sprache",
+    "theme": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "language": "Sprache"
+  },
+  "support": {
+    "title": "Support",
+    "needHelp": "Brauchen Sie Hilfe?",
+    "helpText": "Wenn Sie Fragen haben oder Hilfe benotigen, wenden Sie sich bitte an unser Support-Team."
+  },
+  "account": {
+    "title": "Kontoverwaltung",
+    "subtitle": "Erweiterte Optionen fur das Konto Ihrer Organisation"
+  },
+  "danger": {
+    "title": "Gefahrenzone",
+    "warning": "Das Loschen Ihres Unternehmenskontos entfernt dauerhaft alle Daten, Benutzer und Konfigurationen. Diese Aktion kann nicht ruckgangig gemacht werden.",
+    "deleteButton": "Kontoloschung anfordern"
+  }
+}

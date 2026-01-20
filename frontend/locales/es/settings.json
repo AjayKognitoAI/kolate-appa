@@ -1,0 +1,25 @@
+{
+  "title": "Configuracion",
+  "subtitle": "Administre la configuracion y preferencias de la cuenta de su organizacion",
+  "appearance": {
+    "title": "Apariencia e Idioma",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "language": "Idioma"
+  },
+  "support": {
+    "title": "Soporte",
+    "needHelp": "Necesita ayuda?",
+    "helpText": "Si tiene alguna pregunta o necesita ayuda, comuniquese con nuestro equipo de soporte."
+  },
+  "account": {
+    "title": "Gestion de cuenta",
+    "subtitle": "Opciones avanzadas para la cuenta de su organizacion"
+  },
+  "danger": {
+    "title": "Zona de peligro",
+    "warning": "Eliminar su cuenta empresarial eliminara permanentemente todos los datos, usuarios y configuraciones. Esta accion no se puede deshacer.",
+    "deleteButton": "Solicitar eliminacion de cuenta"
+  }
+}

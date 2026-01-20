@@ -1,0 +1,40 @@
+{
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Loschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "submit": "Absenden",
+    "confirm": "Bestatigen",
+    "close": "Schliessen",
+    "back": "Zuruck",
+    "next": "Weiter",
+    "loading": "Laden..."
+  },
+  "labels": {
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "actions": "Aktionen",
+    "status": "Status",
+    "name": "Name",
+    "email": "E-Mail",
+    "date": "Datum",
+    "description": "Beschreibung"
+  },
+  "messages": {
+    "success": "Vorgang erfolgreich abgeschlossen",
+    "error": "Ein Fehler ist aufgetreten",
+    "loading": "Laden...",
+    "noData": "Keine Daten verfugbar",
+    "confirmDelete": "Sind Sie sicher, dass Sie dieses Element loschen mochten?"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden"
+  }
+}
